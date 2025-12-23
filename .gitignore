@@ -1,0 +1,17 @@
+node_modules/
+.vitepress/cache/
+.vitepress/dist/
+dist/
+.DS_Store
+*.log
+.translation-cache
+translation-report-*.json
+docs/km/
+docs/zh/
+docs/ja/
+docs/ko/
+docs/th/
+docs/vi/
+docs/fr/
+docs/es/
+docs/de/

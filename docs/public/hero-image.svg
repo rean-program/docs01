@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#bd34fe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#41d1ff;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#41d1ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bd34fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="180" fill="url(#grad1)" opacity="0.1"/>
+
+  <!-- Code brackets -->
+  <g transform="translate(200, 200)">
+    <!-- Left bracket -->
+    <path d="M-80,-60 L-110,0 L-80,60" stroke="url(#grad1)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right bracket -->
+    <path d="M80,-60 L110,0 L80,60" stroke="url(#grad2)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Slash -->
+    <line x1="30" y1="-50" x2="-30" y2="50" stroke="#646cff" stroke-width="10" stroke-linecap="round"/>
+
+    <!-- Decorative dots -->
+    <circle cx="-50" cy="-80" r="8" fill="#bd34fe"/>
+    <circle cx="50" cy="-80" r="6" fill="#41d1ff"/>
+    <circle cx="0" cy="90" r="10" fill="#646cff"/>
+    <circle cx="-70" cy="40" r="5" fill="#41d1ff" opacity="0.7"/>
+    <circle cx="70" cy="-40" r="5" fill="#bd34fe" opacity="0.7"/>
+  </g>
+</svg>

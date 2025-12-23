@@ -1,0 +1,39 @@
+{
+  "tutorials": {
+    "basics": {
+      "title": "CSS Basics",
+      "path": "docs/css/basics",
+      "files": [
+        "01-introduction.md",
+        "02-selectors.md",
+        "03-properties.md",
+        "04-box-model.md"
+      ]
+    },
+    "advanced": {
+      "title": "Advanced CSS",
+      "path": "docs/css/advanced",
+      "files": [
+        "01-flexbox.md",
+        "02-grid.md",
+        "03-animations.md",
+        "04-responsive.md"
+      ]
+    },
+    "practical": {
+      "title": "Practical Projects",
+      "path": "docs/css/practical",
+      "files": [
+        "01-navbar.md",
+        "02-cards.md",
+        "03-forms.md",
+        "04-portfolio.md"
+      ]
+    }
+  },
+  "supportedLanguages": {
+    "km": "Khmer",
+    "zh": "Chinese",
+    "ja": "Japanese"
+  }
+}

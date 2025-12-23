@@ -1,0 +1,182 @@
+[
+    {
+        "title": "Destructuring Assignment",
+        "description": "Extract values from arrays or properties from objects into distinct variables.",
+        "code": "// Array destructuring\nconst [first, second] = [1, 2, 3];\n\n// Object destructuring\nconst { name, age } = { name: 'John', age: 30 };\n\n// With default values\nconst { city = 'Unknown' } = {};",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>first = <span style=\"color:#b5cea8;\">1</span></div><div>name = <span style=\"color:#ce9178;\">\"John\"</span></div><div>city = <span style=\"color:#ce9178;\">\"Unknown\"</span></div></div>"
+    },
+    {
+        "title": "Spread Operator",
+        "description": "Expand arrays or objects into individual elements. Great for copying and merging.",
+        "code": "// Copy array\nconst arr = [1, 2, 3];\nconst copy = [...arr];\n\n// Merge objects\nconst obj1 = { a: 1 };\nconst obj2 = { b: 2 };\nconst merged = { ...obj1, ...obj2 };",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>copy = <span style=\"color:#b5cea8;\">[1, 2, 3]</span></div><div>merged = <span style=\"color:#b5cea8;\">{ a: 1, b: 2 }</span></div></div>"
+    },
+    {
+        "title": "Optional Chaining",
+        "description": "Safely access nested object properties without checking each level for null/undefined.",
+        "code": "const user = { profile: { name: 'John' } };\n\n// Without optional chaining (old way)\nconst name1 = user && user.profile && user.profile.name;\n\n// With optional chaining\nconst name2 = user?.profile?.name;\nconst city = user?.address?.city; // undefined, no error",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>name2 = <span style=\"color:#ce9178;\">\"John\"</span></div><div>city = <span style=\"color:#569cd6;\">undefined</span></div></div>"
+    },
+    {
+        "title": "Nullish Coalescing",
+        "description": "Provide a default value only when the left side is null or undefined (not falsy).",
+        "code": "const value1 = null ?? 'default';    // 'default'\nconst value2 = undefined ?? 'default'; // 'default'\nconst value3 = 0 ?? 'default';       // 0\nconst value4 = '' ?? 'default';      // ''\nconst value5 = false ?? 'default';   // false",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>null ?? 'default' = <span style=\"color:#ce9178;\">\"default\"</span></div><div>0 ?? 'default' = <span style=\"color:#b5cea8;\">0</span></div><div>'' ?? 'default' = <span style=\"color:#ce9178;\">\"\"</span></div></div>"
+    },
+    {
+        "title": "Array Methods: map, filter, reduce",
+        "description": "Transform, filter, and aggregate arrays in a functional programming style.",
+        "code": "const numbers = [1, 2, 3, 4, 5];\n\n// map: transform each element\nconst doubled = numbers.map(n => n * 2);\n\n// filter: keep elements that pass test\nconst evens = numbers.filter(n => n % 2 === 0);\n\n// reduce: aggregate to single value\nconst sum = numbers.reduce((acc, n) => acc + n, 0);",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>doubled = <span style=\"color:#b5cea8;\">[2, 4, 6, 8, 10]</span></div><div>evens = <span style=\"color:#b5cea8;\">[2, 4]</span></div><div>sum = <span style=\"color:#b5cea8;\">15</span></div></div>"
+    },
+    {
+        "title": "Template Literals",
+        "description": "Create strings with embedded expressions and multi-line support.",
+        "code": "const name = 'World';\nconst greeting = `Hello, ${name}!`;\n\n// Multi-line strings\nconst html = `\n  <div>\n    <h1>${greeting}</h1>\n  </div>\n`;\n\n// Tagged templates\nconst highlight = (strings, ...values) => \n  strings.reduce((acc, str, i) => \n    `${acc}${str}<b>${values[i] || ''}</b>`, '');",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>greeting = <span style=\"color:#ce9178;\">\"Hello, World!\"</span></div></div>"
+    },
+    {
+        "title": "Arrow Functions",
+        "description": "Concise function syntax with lexical 'this' binding.",
+        "code": "// Traditional function\nfunction add(a, b) { return a + b; }\n\n// Arrow function\nconst add = (a, b) => a + b;\n\n// Single parameter (no parentheses needed)\nconst double = n => n * 2;\n\n// Returning object literal\nconst createUser = name => ({ name, id: Date.now() });",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>add(2, 3) = <span style=\"color:#b5cea8;\">5</span></div><div>double(4) = <span style=\"color:#b5cea8;\">8</span></div></div>"
+    },
+    {
+        "title": "Async/Await",
+        "description": "Write asynchronous code that looks synchronous. Much cleaner than promise chains.",
+        "code": "// Promise-based\nfetch('/api/user')\n  .then(res => res.json())\n  .then(data => console.log(data));\n\n// Async/await\nasync function getUser() {\n  const res = await fetch('/api/user');\n  const data = await res.json();\n  return data;\n}\n\n// Error handling\nasync function fetchData() {\n  try {\n    const data = await getUser();\n  } catch (error) {\n    console.error(error);\n  }\n}",
+        "resultHtml": "<div style=\"padding:16px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:8px;color:white;text-align:center;\">Async/await makes async code readable like sync code!</div>"
+    },
+    {
+        "title": "Promise.all & Promise.allSettled",
+        "description": "Run multiple promises concurrently and wait for all to complete.",
+        "code": "const urls = ['/api/users', '/api/posts', '/api/comments'];\n\n// Promise.all - fails fast if any reject\nconst results = await Promise.all(\n  urls.map(url => fetch(url).then(r => r.json()))\n);\n\n// Promise.allSettled - waits for all, never rejects\nconst results = await Promise.allSettled(\n  urls.map(url => fetch(url))\n);\n// results: [{status: 'fulfilled', value}, {status: 'rejected', reason}]",
+        "resultHtml": "<div style=\"display:flex;gap:8px;flex-wrap:wrap;\"><div style=\"padding:10px 16px;background:#22c55e;border-radius:6px;color:white;font-size:13px;\">fulfilled</div><div style=\"padding:10px 16px;background:#22c55e;border-radius:6px;color:white;font-size:13px;\">fulfilled</div><div style=\"padding:10px 16px;background:#ef4444;border-radius:6px;color:white;font-size:13px;\">rejected</div></div>"
+    },
+    {
+        "title": "Object Shorthand Properties",
+        "description": "Create objects more concisely when variable names match property names.",
+        "code": "const name = 'John';\nconst age = 30;\n\n// Old way\nconst user1 = { name: name, age: age };\n\n// Shorthand\nconst user2 = { name, age };\n\n// Method shorthand\nconst obj = {\n  greet() {\n    return 'Hello!';\n  }\n};",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>user2 = <span style=\"color:#b5cea8;\">{ name: \"John\", age: 30 }</span></div></div>"
+    },
+    {
+        "title": "Array.find & Array.findIndex",
+        "description": "Find the first element or its index that matches a condition.",
+        "code": "const users = [\n  { id: 1, name: 'Alice' },\n  { id: 2, name: 'Bob' },\n  { id: 3, name: 'Charlie' }\n];\n\n// Find first match\nconst bob = users.find(u => u.name === 'Bob');\n\n// Find index of first match\nconst bobIndex = users.findIndex(u => u.name === 'Bob');\n\n// Returns undefined/-1 if not found\nconst dave = users.find(u => u.name === 'Dave');",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>bob = <span style=\"color:#b5cea8;\">{ id: 2, name: \"Bob\" }</span></div><div>bobIndex = <span style=\"color:#b5cea8;\">1</span></div><div>dave = <span style=\"color:#569cd6;\">undefined</span></div></div>"
+    },
+    {
+        "title": "Array.includes & String.includes",
+        "description": "Check if an array contains a value or a string contains a substring.",
+        "code": "const fruits = ['apple', 'banana', 'orange'];\n\n// Array includes\nfruits.includes('banana');  // true\nfruits.includes('grape');   // false\n\n// String includes\nconst str = 'Hello, World!';\nstr.includes('World');      // true\nstr.includes('world');      // false (case-sensitive)",
+        "resultHtml": "<div style=\"display:flex;gap:12px;flex-wrap:wrap;\"><div style=\"padding:10px 16px;background:#22c55e;border-radius:6px;color:white;\">includes('banana') = true</div><div style=\"padding:10px 16px;background:#ef4444;border-radius:6px;color:white;\">includes('grape') = false</div></div>"
+    },
+    {
+        "title": "Object.entries, Object.keys, Object.values",
+        "description": "Convert objects to arrays for easy iteration.",
+        "code": "const user = { name: 'John', age: 30, city: 'NYC' };\n\nObject.keys(user);    // ['name', 'age', 'city']\nObject.values(user);  // ['John', 30, 'NYC']\nObject.entries(user); // [['name','John'], ['age',30], ['city','NYC']]\n\n// Iterate with entries\nfor (const [key, value] of Object.entries(user)) {\n  console.log(`${key}: ${value}`);\n}",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;font-size:13px;\"><div>keys: <span style=\"color:#b5cea8;\">[\"name\", \"age\", \"city\"]</span></div><div>values: <span style=\"color:#b5cea8;\">[\"John\", 30, \"NYC\"]</span></div></div>"
+    },
+    {
+        "title": "Default Parameters",
+        "description": "Set default values for function parameters.",
+        "code": "// Old way\nfunction greet(name) {\n  name = name || 'Guest';\n  return `Hello, ${name}!`;\n}\n\n// Default parameters\nfunction greet(name = 'Guest') {\n  return `Hello, ${name}!`;\n}\n\n// Works with objects too\nfunction createUser({ name = 'Anonymous', role = 'user' } = {}) {\n  return { name, role };\n}",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>greet() = <span style=\"color:#ce9178;\">\"Hello, Guest!\"</span></div><div>greet('John') = <span style=\"color:#ce9178;\">\"Hello, John!\"</span></div></div>"
+    },
+    {
+        "title": "Rest Parameters",
+        "description": "Collect multiple arguments into an array.",
+        "code": "// Rest parameters\nfunction sum(...numbers) {\n  return numbers.reduce((a, b) => a + b, 0);\n}\n\nsum(1, 2, 3);       // 6\nsum(1, 2, 3, 4, 5); // 15\n\n// Combine with regular params\nfunction log(level, ...messages) {\n  console.log(`[${level}]`, ...messages);\n}",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>sum(1, 2, 3) = <span style=\"color:#b5cea8;\">6</span></div><div>sum(1, 2, 3, 4, 5) = <span style=\"color:#b5cea8;\">15</span></div></div>"
+    },
+    {
+        "title": "Array.flat & Array.flatMap",
+        "description": "Flatten nested arrays and combine map + flatten operations.",
+        "code": "const nested = [1, [2, 3], [4, [5, 6]]];\n\n// Flatten one level\nnested.flat();     // [1, 2, 3, 4, [5, 6]]\n\n// Flatten all levels\nnested.flat(Infinity); // [1, 2, 3, 4, 5, 6]\n\n// flatMap = map + flat(1)\nconst sentences = ['Hello world', 'How are you'];\nsentences.flatMap(s => s.split(' '));\n// ['Hello', 'world', 'How', 'are', 'you']",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;font-size:13px;\"><div>flat() = <span style=\"color:#b5cea8;\">[1, 2, 3, 4, [5, 6]]</span></div><div>flat(Infinity) = <span style=\"color:#b5cea8;\">[1, 2, 3, 4, 5, 6]</span></div></div>"
+    },
+    {
+        "title": "Set for Unique Values",
+        "description": "Store unique values of any type. Perfect for removing duplicates.",
+        "code": "// Remove duplicates from array\nconst arr = [1, 2, 2, 3, 3, 3];\nconst unique = [...new Set(arr)]; // [1, 2, 3]\n\n// Set operations\nconst set = new Set([1, 2, 3]);\nset.add(4);      // {1, 2, 3, 4}\nset.has(2);      // true\nset.delete(2);   // {1, 3, 4}\nset.size;        // 3",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>[1, 2, 2, 3, 3, 3]</div><div style=\"margin-top:8px;\">unique = <span style=\"color:#b5cea8;\">[1, 2, 3]</span></div></div>"
+    },
+    {
+        "title": "Map for Key-Value Pairs",
+        "description": "Store key-value pairs where keys can be any type (unlike objects).",
+        "code": "const map = new Map();\n\n// Any type as key\nmap.set('string', 'value1');\nmap.set(42, 'value2');\nmap.set({ id: 1 }, 'value3');\n\nmap.get('string');  // 'value1'\nmap.has(42);        // true\nmap.size;           // 3\n\n// Iterate\nfor (const [key, value] of map) {\n  console.log(key, value);\n}",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;font-size:13px;\"><div><span style=\"color:#ce9178;\">\"string\"</span> => <span style=\"color:#ce9178;\">\"value1\"</span></div><div><span style=\"color:#b5cea8;\">42</span> => <span style=\"color:#ce9178;\">\"value2\"</span></div><div><span style=\"color:#b5cea8;\">{ id: 1 }</span> => <span style=\"color:#ce9178;\">\"value3\"</span></div></div>"
+    },
+    {
+        "title": "Logical Assignment Operators",
+        "description": "Combine logical operators with assignment for cleaner code.",
+        "code": "let a = null;\nlet b = 'hello';\nlet c = 0;\n\n// Nullish assignment (??=)\na ??= 'default';  // a = 'default'\nb ??= 'default';  // b = 'hello' (unchanged)\n\n// OR assignment (||=)\nc ||= 10;         // c = 10 (0 is falsy)\n\n// AND assignment (&&=)\nlet user = { name: 'John' };\nuser.name &&= user.name.toUpperCase(); // 'JOHN'",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>a = <span style=\"color:#ce9178;\">\"default\"</span></div><div>b = <span style=\"color:#ce9178;\">\"hello\"</span></div><div>c = <span style=\"color:#b5cea8;\">10</span></div></div>"
+    },
+    {
+        "title": "String Methods: padStart, padEnd",
+        "description": "Pad strings to a certain length with a specified character.",
+        "code": "// Pad start\n'5'.padStart(3, '0');     // '005'\n'42'.padStart(5, '*');    // '***42'\n\n// Pad end\n'Hi'.padEnd(5, '.');      // 'Hi...'\n\n// Useful for formatting\nconst price = 9.99;\n`$${price.toFixed(2).padStart(8)}`;  // '$    9.99'\n\n// Time formatting\nconst hours = 9;\n`${String(hours).padStart(2, '0')}:00`; // '09:00'",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>'5'.padStart(3, '0') = <span style=\"color:#ce9178;\">\"005\"</span></div><div>'Hi'.padEnd(5, '.') = <span style=\"color:#ce9178;\">\"Hi...\"</span></div></div>"
+    },
+    {
+        "title": "Array.at() for Negative Indexing",
+        "description": "Access array elements with negative indices to count from the end.",
+        "code": "const arr = ['a', 'b', 'c', 'd', 'e'];\n\n// Positive index (same as bracket notation)\narr.at(0);   // 'a'\narr.at(2);   // 'c'\n\n// Negative index (count from end)\narr.at(-1);  // 'e' (last element)\narr.at(-2);  // 'd' (second to last)\n\n// Old way to get last element\narr[arr.length - 1];  // 'e'",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>arr.at(0) = <span style=\"color:#ce9178;\">\"a\"</span></div><div>arr.at(-1) = <span style=\"color:#ce9178;\">\"e\"</span></div><div>arr.at(-2) = <span style=\"color:#ce9178;\">\"d\"</span></div></div>"
+    },
+    {
+        "title": "Object.fromEntries",
+        "description": "Convert an array of key-value pairs back into an object.",
+        "code": "// From entries array\nconst entries = [['name', 'John'], ['age', 30]];\nObject.fromEntries(entries); // { name: 'John', age: 30 }\n\n// Transform object values\nconst prices = { apple: 1, banana: 2, orange: 3 };\nconst doubled = Object.fromEntries(\n  Object.entries(prices).map(([k, v]) => [k, v * 2])\n); // { apple: 2, banana: 4, orange: 6 }\n\n// From Map\nconst map = new Map([['a', 1], ['b', 2]]);\nObject.fromEntries(map); // { a: 1, b: 2 }",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;font-size:13px;\"><div>fromEntries = <span style=\"color:#b5cea8;\">{ name: \"John\", age: 30 }</span></div><div>doubled = <span style=\"color:#b5cea8;\">{ apple: 2, banana: 4, orange: 6 }</span></div></div>"
+    },
+    {
+        "title": "Numeric Separators",
+        "description": "Use underscores in numbers for better readability.",
+        "code": "// Large numbers are easier to read\nconst billion = 1_000_000_000;\nconst bytes = 0xFF_FF_FF_FF;\nconst binary = 0b1010_0001_1000_0101;\n\n// Decimals too\nconst price = 19_999.99;\n\n// The underscores are ignored\n1_000_000 === 1000000;  // true",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>1_000_000_000 = <span style=\"color:#b5cea8;\">1000000000</span></div><div>19_999.99 = <span style=\"color:#b5cea8;\">19999.99</span></div></div>"
+    },
+    {
+        "title": "Private Class Fields",
+        "description": "Create truly private properties in classes using # prefix.",
+        "code": "class BankAccount {\n  #balance = 0;  // Private field\n\n  deposit(amount) {\n    this.#balance += amount;\n  }\n\n  getBalance() {\n    return this.#balance;\n  }\n}\n\nconst account = new BankAccount();\naccount.deposit(100);\naccount.getBalance();  // 100\naccount.#balance;      // SyntaxError!",
+        "resultHtml": "<div style=\"padding:16px;background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:8px;color:white;text-align:center;font-size:14px;\">account.#balance throws SyntaxError - truly private!</div>"
+    },
+    {
+        "title": "Array.prototype.toSorted & toReversed",
+        "description": "Create sorted/reversed copies without mutating the original array.",
+        "code": "const arr = [3, 1, 4, 1, 5];\n\n// Old way (mutates original)\nconst sorted1 = [...arr].sort();\n\n// New way (doesn't mutate)\nconst sorted2 = arr.toSorted();       // [1, 1, 3, 4, 5]\nconst reversed = arr.toReversed();    // [5, 1, 4, 1, 3]\nconst spliced = arr.toSpliced(1, 2);  // [3, 1, 5]\n\nconsole.log(arr); // [3, 1, 4, 1, 5] - unchanged!",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;font-size:13px;\"><div>original = <span style=\"color:#b5cea8;\">[3, 1, 4, 1, 5]</span></div><div>toSorted() = <span style=\"color:#b5cea8;\">[1, 1, 3, 4, 5]</span></div><div>toReversed() = <span style=\"color:#b5cea8;\">[5, 1, 4, 1, 3]</span></div></div>"
+    },
+    {
+        "title": "Ternary Operator",
+        "description": "Shorthand for if-else statements, perfect for conditional assignments.",
+        "code": "const age = 20;\n\n// Instead of if-else\nlet status;\nif (age >= 18) {\n  status = 'adult';\n} else {\n  status = 'minor';\n}\n\n// Use ternary\nconst status = age >= 18 ? 'adult' : 'minor';\n\n// Nested (use sparingly)\nconst grade = score >= 90 ? 'A'\n            : score >= 80 ? 'B'\n            : score >= 70 ? 'C' : 'F';",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>status = <span style=\"color:#ce9178;\">\"adult\"</span></div></div>"
+    },
+    {
+        "title": "Short-Circuit Evaluation",
+        "description": "Use && and || for concise conditional logic.",
+        "code": "// AND (&&) - returns first falsy or last value\nconst result1 = true && 'hello';   // 'hello'\nconst result2 = false && 'hello';  // false\n\n// Conditional execution\nisLoggedIn && showDashboard();\n\n// OR (||) - returns first truthy or last value\nconst name = userName || 'Guest';\nconst port = process.env.PORT || 3000;\n\n// Combine for defaults\nconst config = userConfig && userConfig.theme || 'light';",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;\"><div>true && 'hello' = <span style=\"color:#ce9178;\">\"hello\"</span></div><div>false && 'hello' = <span style=\"color:#569cd6;\">false</span></div><div>'' || 'Guest' = <span style=\"color:#ce9178;\">\"Guest\"</span></div></div>"
+    },
+    {
+        "title": "Console Methods Beyond log",
+        "description": "Use specialized console methods for better debugging.",
+        "code": "// Group related logs\nconsole.group('User Details');\nconsole.log('Name: John');\nconsole.log('Age: 30');\nconsole.groupEnd();\n\n// Table format\nconsole.table([{name: 'John', age: 30}, {name: 'Jane', age: 25}]);\n\n// Timing\nconsole.time('loop');\nfor(let i = 0; i < 1000000; i++) {}\nconsole.timeEnd('loop'); // loop: 2.5ms\n\n// Styled output\nconsole.log('%cStyled!', 'color: red; font-size: 20px');",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;font-size:12px;\"><div style=\"color:#6a9955;\">▼ User Details</div><div style=\"padding-left:16px;\">Name: John</div><div style=\"padding-left:16px;\">Age: 30</div><div style=\"margin-top:8px;color:#dcdcaa;\">loop: 2.5ms</div></div>"
+    },
+    {
+        "title": "JSON.stringify with Replacer & Space",
+        "description": "Format and filter JSON output for better readability.",
+        "code": "const user = { name: 'John', password: 'secret', age: 30 };\n\n// Pretty print with 2-space indent\nJSON.stringify(user, null, 2);\n\n// Filter properties with replacer array\nJSON.stringify(user, ['name', 'age']);\n// '{\"name\":\"John\",\"age\":30}'\n\n// Transform with replacer function\nJSON.stringify(user, (key, value) => \n  key === 'password' ? undefined : value\n);",
+        "resultHtml": "<div style=\"font-family:monospace;padding:12px;background:#1e1e1e;border-radius:8px;color:#9cdcfe;font-size:12px;white-space:pre;\">{<br>  \"name\": \"John\",<br>  \"age\": 30<br>}</div>"
+    },
+    {
+        "title": "Debounce Function",
+        "description": "Limit how often a function can fire. Great for search inputs and resize events.",
+        "code": "function debounce(fn, delay) {\n  let timeoutId;\n  return (...args) => {\n    clearTimeout(timeoutId);\n    timeoutId = setTimeout(() => fn(...args), delay);\n  };\n}\n\n// Usage\nconst handleSearch = debounce((query) => {\n  fetch(`/api/search?q=${query}`);\n}, 300);\n\ninput.addEventListener('input', (e) => {\n  handleSearch(e.target.value);\n});",
+        "resultHtml": "<div style=\"padding:16px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:8px;color:white;text-align:center;\">Only fires after user stops typing for 300ms!</div>"
+    }
+]

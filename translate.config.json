@@ -1,0 +1,23 @@
+{
+  "sourceDir": "docs",
+  "outputPattern": "docs/{lang}",
+  "languages": {
+    "km": { "name": "Khmer", "nativeName": "ភាសាខ្មែរ" },
+    "zh": { "name": "Chinese", "nativeName": "中文" },
+    "ja": { "name": "Japanese", "nativeName": "日本語" },
+    "ko": { "name": "Korean", "nativeName": "한국어" },
+    "th": { "name": "Thai", "nativeName": "ภาษาไทย" },
+    "vi": { "name": "Vietnamese", "nativeName": "Tiếng Việt" },
+    "fr": { "name": "French", "nativeName": "Français" },
+    "es": { "name": "Spanish", "nativeName": "Español" },
+    "de": { "name": "German", "nativeName": "Deutsch" }
+  },
+  "excludeDirs": [
+    "node_modules",
+    ".vitepress/cache",
+    ".vitepress/dist"
+  ],
+  "rateLimitMs": 500,
+  "translationCache": true,
+  "retryAttempts": 3
+}

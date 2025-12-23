@@ -1,0 +1,31 @@
+{
+  "name": "vitepress-doc",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "VitePress Documentation with Khmer Translation Support",
+  "author": "Your Name",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "translate": "node scripts/translate.mjs",
+    "translate:km": "node scripts/translate.mjs --lang km",
+    "clean:translations": "node scripts/clean-translations.mjs",
+    "retranslate": "npm run clean:translations && npm run translate:km",
+    "debug": "node scripts/debug-translate.mjs",
+    "test:translations": "node scripts/test-translations.mjs",
+    "validate:config": "node scripts/validate-config.mjs"
+  },
+  "dependencies": {
+    "@vitalets/google-translate-api": "^9.2.0",
+    "glob": "^10.3.10",
+    "vitepress": "^1.0.0",
+    "vue": "^3.3.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}

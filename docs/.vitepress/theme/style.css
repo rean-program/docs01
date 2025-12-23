@@ -1,0 +1,64 @@
+/* Base styles */
+:root {
+  --vp-c-brand: #3b82f6;
+  --vp-c-brand-light: #60a5fa;
+  --vp-c-brand-dark: #1e40af;
+}
+
+/* Language-specific text alignment */
+:lang(km),
+:lang(th),
+:lang(vi) {
+  text-align: justify;
+  line-height: 1.8;
+}
+
+:lang(zh),
+:lang(ja),
+:lang(ko) {
+  letter-spacing: 0.05em;
+}
+
+/* Code block styling across languages */
+.vp-code-block {
+  margin: 1rem 0;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+/* Table styling for all languages */
+.vp-doc table {
+  margin: 1rem 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.vp-doc th,
+.vp-doc td {
+  padding: 0.75rem;
+  border: 1px solid var(--vp-c-divider);
+}
+
+/* Language switcher styling */
+.language-switcher {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.language-switcher a {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background-color: var(--vp-c-bg-muted);
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.language-switcher a:hover {
+  background-color: var(--vp-c-brand-light);
+}
+
+.language-switcher a.active {
+  background-color: var(--vp-c-brand);
+  color: white;
+}

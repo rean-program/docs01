@@ -1,0 +1,112 @@
+{
+  "sourceLanguage": "en",
+  "targetLanguages": ["km", "zh", "ja", "ko", "th", "vi", "fr", "es", "de"],
+  "languages": {
+    "en": {
+      "name": "English",
+      "nativeName": "English",
+      "code": "en-US",
+      "direction": "ltr"
+    },
+    "km": {
+      "name": "Khmer",
+      "nativeName": "ភាសាខ្មែរ",
+      "code": "km-KH",
+      "direction": "ltr",
+      "googleTranslateCode": "km"
+    },
+    "zh": {
+      "name": "Chinese (Simplified)",
+      "nativeName": "中文",
+      "code": "zh-CN",
+      "direction": "ltr",
+      "googleTranslateCode": "zh-CN"
+    },
+    "ja": {
+      "name": "Japanese",
+      "nativeName": "日本語",
+      "code": "ja-JP",
+      "direction": "ltr",
+      "googleTranslateCode": "ja"
+    },
+    "ko": {
+      "name": "Korean",
+      "nativeName": "한국어",
+      "code": "ko-KR",
+      "direction": "ltr",
+      "googleTranslateCode": "ko"
+    },
+    "th": {
+      "name": "Thai",
+      "nativeName": "ภาษาไทย",
+      "code": "th-TH",
+      "direction": "ltr",
+      "googleTranslateCode": "th"
+    },
+    "vi": {
+      "name": "Vietnamese",
+      "nativeName": "Tiếng Việt",
+      "code": "vi-VN",
+      "direction": "ltr",
+      "googleTranslateCode": "vi"
+    },
+    "fr": {
+      "name": "French",
+      "nativeName": "Français",
+      "code": "fr-FR",
+      "direction": "ltr",
+      "googleTranslateCode": "fr"
+    },
+    "es": {
+      "name": "Spanish",
+      "nativeName": "Español",
+      "code": "es-ES",
+      "direction": "ltr",
+      "googleTranslateCode": "es"
+    },
+    "de": {
+      "name": "German",
+      "nativeName": "Deutsch",
+      "code": "de-DE",
+      "direction": "ltr",
+      "googleTranslateCode": "de"
+    }
+  },
+  "translationSettings": {
+    "preserveCodeBlocks": true,
+    "preserveFrontmatter": true,
+    "preserveInlineCode": true,
+    "preserveLinks": true,
+    "preserveImages": true,
+    "preserveHtmlTags": true,
+    "translateLinkText": true,
+    "translateImageAlt": true,
+    "rateLimitMs": 500,
+    "retryAttempts": 3,
+    "cacheTranslations": true
+  },
+  "sourceDirectories": [
+    "docs/**/*.md"
+  ],
+  "ignoreDirectories": [
+    "docs/node_modules/**",
+    "docs/.vitepress/**",
+    "docs/km/**",
+    "docs/zh/**",
+    "docs/ja/**",
+    "docs/ko/**",
+    "docs/th/**",
+    "docs/vi/**",
+    "docs/fr/**",
+    "docs/es/**",
+    "docs/de/**"
+  ],
+  "outputPattern": "docs/{lang}/{path}",
+  "fileExtensions": [".md"],
+  "logging": {
+    "verbose": false,
+    "showProgress": true,
+    "saveReports": true,
+    "reportDirectory": "."
+  }
+}

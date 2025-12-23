@@ -23,7 +23,10 @@
     "vitepress": "^1.0.0",
     "vue": "^3.3.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.0"
+  },
   "engines": {
     "node": ">=14.0.0",
     "npm": ">=6.0.0"

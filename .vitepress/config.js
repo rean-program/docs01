@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
+  base: '/docs01/',
   title: 'AI Documentation',
   description: 'Comprehensive AI Learning Guide with Multi-language Support',
   lang: 'en-US',

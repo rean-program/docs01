@@ -53,7 +53,7 @@ export default defineConfig({
             ]
           },
           { text: 'AI', link: '/guide/ai/' },
-          { text: 'Author', link: '/creator' }
+          // { text: 'Author', link: '/creator' }
         ],
         sidebar: {
           '/guide/': [

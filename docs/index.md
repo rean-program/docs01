@@ -18,7 +18,7 @@ hero:
 
 features:
   - icon:
-      src: frameworks/html.png
+      src: /frameworks/html.png
     title: HTML Fundamentals
     details: Build solid foundations with semantic markup, accessibility best practices, and modern HTML5 features.
     link: /guide/html/

@@ -32,7 +32,7 @@ A comprehensive web development documentation site built with VitePress, coverin
 
 3. **Open in browser**
 
-   Visit `http://localhost:5173/doc01/`
+   Visit `http://localhost:5173/docs01/`
 
 ## Available Scripts
 

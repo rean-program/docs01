@@ -37,77 +37,110 @@ export default defineConfig({
     },
   },
 
-  theme: {
-    config: {
-      // Navigation for each language
-      nav: [
-        { text: 'Home', link: '/' },
-        { text: 'Guide', link: '/guide/' },
-        { text: 'CSS', link: '/guide/css/' },
+  themeConfig: {
+    // Navigation menu (top bar)
+    nav: [
+      { text: 'Home', link: '/' },
+      { text: 'Guide', link: '/guide/' },
+      {
+        text: 'Tutorials',
+        items: [
+          { text: 'HTML', link: '/guide/html/' },
+          { text: 'CSS', link: '/guide/css/' },
+          { text: 'JavaScript', link: '/guide/javascript/' },
+          { text: 'TypeScript', link: '/guide/typescript/' },
+          { text: 'React', link: '/guide/react/' },
+          { text: 'Node.js', link: '/guide/nodejs/' },
+          { text: 'Express', link: '/guide/express/' },
+          { text: 'NestJS', link: '/guide/nestjs/' },
+          { text: 'PostgreSQL', link: '/guide/postgresql/' },
+        ],
+      },
+      { text: 'PostgreSQL', link: '/guide/postgresql/' },
+    ],
+
+    // Sidebar navigation
+    sidebar: {
+      // PostgreSQL dedicated sidebar
+      '/guide/postgresql/': [
+        {
+          text: 'PostgreSQL',
+          items: [
+            { text: 'Overview', link: '/guide/postgresql/' },
+            { text: 'Introduction', link: '/guide/postgresql/01-introduction' },
+            { text: 'Installation', link: '/guide/postgresql/02-installation' },
+            { text: 'SQL Basics', link: '/guide/postgresql/03-basics' },
+            { text: 'Data Types', link: '/guide/postgresql/04-data-types' },
+            { text: 'Queries', link: '/guide/postgresql/05-queries' },
+            { text: 'JOINs', link: '/guide/postgresql/06-joins' },
+            { text: 'Functions', link: '/guide/postgresql/07-functions' },
+            { text: 'Indexes', link: '/guide/postgresql/08-indexes' },
+            { text: 'Transactions', link: '/guide/postgresql/09-transactions' },
+            { text: 'Security', link: '/guide/postgresql/10-security' },
+          ],
+        },
       ],
-
-      sidebar: {
-        '/': [
-          {
-            text: 'Guide',
-            items: [
-              { text: 'Introduction', link: '/guide/ai/01-introduction' },
-              { text: 'ML Basics', link: '/guide/ai/02-ml-basics' },
-            ],
-          },
-          {
-            text: 'CSS',
-            items: [
-              { text: 'Basics', link: '/guide/css/01-basics' },
-              { text: 'Layout', link: '/guide/css/02-layout' },
-            ],
-          },
-        ],
-        '/km/': [
-          {
-            text: 'មគ្គុទ្ធិ',
-            items: [
-              { text: 'ការណែនាំ', link: '/km/guide/ai/01-introduction' },
-              { text: 'មូលដ្ឋាននៃ ML', link: '/km/guide/ai/02-ml-basics' },
-            ],
-          },
-        ],
-        '/zh/': [
-          {
-            text: '指南',
-            items: [
-              { text: '介绍', link: '/zh/guide/ai/01-introduction' },
-              { text: 'ML 基础', link: '/zh/guide/ai/02-ml-basics' },
-            ],
-          },
-        ],
-        '/ja/': [
-          {
-            text: 'ガイド',
-            items: [
-              { text: '紹介', link: '/ja/guide/ai/01-introduction' },
-              { text: 'ML の基礎', link: '/ja/guide/ai/02-ml-basics' },
-            ],
-          },
-        ],
-      },
-
-      socialLinks: [
-        { icon: 'github', link: 'https://github.com' },
+      // Default sidebar
+      '/': [
+        {
+          text: 'Guide',
+          items: [
+            { text: 'Introduction', link: '/guide/ai/01-introduction' },
+            { text: 'ML Basics', link: '/guide/ai/02-ml-basics' },
+          ],
+        },
+        {
+          text: 'CSS',
+          items: [
+            { text: 'Basics', link: '/guide/css/01-basics' },
+            { text: 'Layout', link: '/guide/css/02-layout' },
+          ],
+        },
       ],
+      '/km/': [
+        {
+          text: 'មគ្គុទ្ធិ',
+          items: [
+            { text: 'ការណែនាំ', link: '/km/guide/ai/01-introduction' },
+            { text: 'មូលដ្ឋាននៃ ML', link: '/km/guide/ai/02-ml-basics' },
+          ],
+        },
+      ],
+      '/zh/': [
+        {
+          text: '指南',
+          items: [
+            { text: '介绍', link: '/zh/guide/ai/01-introduction' },
+            { text: 'ML 基础', link: '/zh/guide/ai/02-ml-basics' },
+          ],
+        },
+      ],
+      '/ja/': [
+        {
+          text: 'ガイド',
+          items: [
+            { text: '紹介', link: '/ja/guide/ai/01-introduction' },
+            { text: 'ML の基礎', link: '/ja/guide/ai/02-ml-basics' },
+          ],
+        },
+      ],
+    },
 
-      editLink: {
-        pattern: 'https://github.com/yourusername/repo/edit/main/docs/:path',
-        text: 'Edit this page',
-      },
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com' },
+    ],
 
-      lastUpdated: true,
-      lastUpdatedText: 'Last updated',
+    editLink: {
+      pattern: 'https://github.com/yourusername/repo/edit/main/docs/:path',
+      text: 'Edit this page',
+    },
 
-      docFooter: {
-        prev: 'Previous',
-        next: 'Next',
-      },
+    lastUpdated: true,
+    lastUpdatedText: 'Last updated',
+
+    docFooter: {
+      prev: 'Previous',
+      next: 'Next',
     },
   },
 

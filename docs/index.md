@@ -93,6 +93,11 @@ features:
     details: Cross-platform framework for building web APIs, desktop apps, cloud services, and microservices.
     link: /guide/dotnet/
     linkText: Learn .NET
+  - icon: 🐘
+    title: PostgreSQL
+    details: Powerful open-source relational database - SQL basics, queries, joins, transactions, and security.
+    link: /guide/postgresql/
+    linkText: Learn PostgreSQL
 ---
 
 <style>

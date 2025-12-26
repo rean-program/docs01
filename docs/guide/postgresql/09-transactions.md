@@ -558,10 +558,152 @@ $$;
 SELECT * FROM claim_job();
 ```
 
+## Common Transaction Mistakes
+
+### Mistake 1: Holding Transactions Open Too Long
+
+```sql
+-- BAD: Long-running transaction blocks other operations
+BEGIN;
+SELECT * FROM orders WHERE id = 1 FOR UPDATE;
+-- User goes to lunch...
+-- Other transactions waiting for row 1 are blocked!
+COMMIT;
+
+-- GOOD: Keep transactions short
+BEGIN;
+SELECT * FROM orders WHERE id = 1 FOR UPDATE;
+UPDATE orders SET status = 'shipped' WHERE id = 1;
+COMMIT;  -- Release locks immediately
+```
+
+### Mistake 2: Not Handling Serialization Failures
+
+```sql
+-- BAD: Assumes transaction always succeeds
+BEGIN;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+COMMIT;  -- May fail with serialization_failure!
+
+-- GOOD: Application code with retry logic
+-- Python example:
+-- for attempt in range(3):
+--     try:
+--         cursor.execute("BEGIN; SET TRANSACTION ...")
+--         cursor.execute("UPDATE ...")
+--         cursor.execute("COMMIT")
+--         break
+--     except psycopg2.errors.SerializationFailure:
+--         cursor.execute("ROLLBACK")
+--         continue
+```
+
+### Mistake 3: Forgetting to Handle Errors
+
+```sql
+-- BAD: Error leaves transaction in bad state
+BEGIN;
+INSERT INTO orders (customer_id) VALUES (999);  -- FK violation!
+-- Transaction is now aborted, all subsequent commands fail
+UPDATE inventory SET stock = stock - 1;  -- This fails too!
+COMMIT;  -- Also fails!
+
+-- GOOD: Use savepoints or proper error handling
+BEGIN;
+SAVEPOINT before_insert;
+INSERT INTO orders (customer_id) VALUES (999);  -- FK violation!
+-- Catch error in application, rollback to savepoint
+ROLLBACK TO before_insert;
+-- Continue with other operations
+COMMIT;
+```
+
+## Application Integration Patterns
+
+### Connection Pooling with Transactions
+
+```javascript
+// Node.js with pg-pool
+const pool = new Pool({ max: 20 });
+
+async function transferMoney(fromId, toId, amount) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Lock both accounts in consistent order to prevent deadlock
+    const ids = [fromId, toId].sort();
+    await client.query(
+      'SELECT * FROM accounts WHERE id = ANY($1) ORDER BY id FOR UPDATE',
+      [ids]
+    );
+
+    await client.query(
+      'UPDATE accounts SET balance = balance - $1 WHERE id = $2',
+      [amount, fromId]
+    );
+    await client.query(
+      'UPDATE accounts SET balance = balance + $1 WHERE id = $2',
+      [amount, toId]
+    );
+
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();  // Return to pool
+  }
+}
+```
+
+### Optimistic Locking Pattern
+
+```sql
+-- Add version column to table
+ALTER TABLE products ADD COLUMN version INTEGER DEFAULT 1;
+
+-- Read with version
+SELECT id, name, price, version FROM products WHERE id = 1;
+-- Returns: id=1, name='Widget', price=10.00, version=5
+
+-- Update only if version matches
+UPDATE products
+SET price = 12.00, version = version + 1
+WHERE id = 1 AND version = 5;
+
+-- Check if update succeeded
+-- If affected rows = 0, someone else modified the record
+-- Retry or show conflict to user
+```
+
+### Idempotent Operations
+
+```sql
+-- Use unique constraint for idempotency
+CREATE TABLE payments (
+    id SERIAL PRIMARY KEY,
+    idempotency_key UUID UNIQUE,  -- Client provides this
+    amount DECIMAL,
+    status VARCHAR(20),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insert only if key doesn't exist
+INSERT INTO payments (idempotency_key, amount, status)
+VALUES ('550e8400-e29b-41d4-a716-446655440000', 100.00, 'pending')
+ON CONFLICT (idempotency_key) DO NOTHING
+RETURNING *;
+
+-- If returns nothing, payment already exists - fetch it instead
+SELECT * FROM payments WHERE idempotency_key = '550e8400-...';
+```
+
 ## Summary
 
 | Concept | Description |
-|---------|-------------|
+| ------- | ----------- |
 | **Transaction** | Group of operations that succeed or fail together |
 | **ACID** | Atomicity, Consistency, Isolation, Durability |
 | **COMMIT** | Save all changes permanently |

@@ -536,10 +536,144 @@ const result = await pool.query(
 );
 ```
 
+## Common Security Mistakes
+
+### Mistake 1: Using Superuser for Applications
+
+```sql
+-- NEVER do this in production!
+-- Application connecting as postgres (superuser)
+psql -U postgres -d myapp
+
+-- CORRECT: Create dedicated application user
+CREATE USER app_service WITH PASSWORD 'secure_password';
+GRANT CONNECT ON DATABASE myapp TO app_service;
+GRANT USAGE ON SCHEMA public TO app_service;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_service;
+```
+
+### Mistake 2: SQL Injection Vulnerabilities
+
+```python
+# DANGEROUS: String concatenation
+query = f"SELECT * FROM users WHERE email = '{user_email}'"
+# If user_email = "'; DROP TABLE users; --" → disaster!
+
+# SAFE: Parameterized queries
+cursor.execute(
+    "SELECT * FROM users WHERE email = %s",
+    (user_email,)
+)
+```
+
+### Mistake 3: Storing Passwords Incorrectly
+
+```sql
+-- WRONG: Plain text passwords
+CREATE TABLE users (
+    email VARCHAR(255),
+    password VARCHAR(255)  -- Storing "password123" directly
+);
+
+-- CORRECT: Use pgcrypto for hashing
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Store hashed password
+INSERT INTO users (email, password_hash)
+VALUES ('user@example.com', crypt('password123', gen_salt('bf', 12)));
+
+-- Verify password
+SELECT * FROM users
+WHERE email = 'user@example.com'
+  AND password_hash = crypt('password123', password_hash);
+```
+
+### Mistake 4: Leaving Default Permissions
+
+```sql
+-- Check what public can access
+SELECT nspname, nspacl FROM pg_namespace WHERE nspname = 'public';
+
+-- Lock down public schema
+REVOKE ALL ON SCHEMA public FROM public;
+REVOKE ALL ON DATABASE myapp FROM public;
+
+-- Only grant to specific roles
+GRANT USAGE ON SCHEMA public TO app_role;
+```
+
+## Security Checklist for Production
+
+```sql
+-- 1. Check for superuser accounts
+SELECT rolname, rolsuper FROM pg_roles WHERE rolsuper = true;
+-- Should only be postgres (or DBA accounts)
+
+-- 2. Check for users without password expiration
+SELECT rolname, rolvaliduntil
+FROM pg_roles
+WHERE rolcanlogin = true
+  AND (rolvaliduntil IS NULL OR rolvaliduntil > NOW() + INTERVAL '1 year');
+
+-- 3. Check for tables with public access
+SELECT schemaname, tablename
+FROM pg_tables
+WHERE has_table_privilege('public', schemaname || '.' || tablename, 'SELECT');
+
+-- 4. Check SSL is enabled
+SHOW ssl;  -- Should be 'on'
+
+-- 5. Check password encryption method
+SHOW password_encryption;  -- Should be 'scram-sha-256'
+
+-- 6. Check for active connections
+SELECT usename, client_addr, ssl, state
+FROM pg_stat_activity
+WHERE datname = current_database();
+
+-- 7. Check for unused roles
+SELECT rolname
+FROM pg_roles
+WHERE rolcanlogin = true
+  AND rolname NOT IN (SELECT DISTINCT usename FROM pg_stat_activity);
+```
+
+## Environment-Specific Configurations
+
+### Development
+
+```sql
+-- More relaxed for local development
+-- pg_hba.conf
+local   all   all                 trust
+host    all   all   127.0.0.1/32  trust
+```
+
+### Staging
+
+```sql
+-- Similar to production but may have test data access
+-- pg_hba.conf
+local   all   all                      scram-sha-256
+host    all   all   10.0.0.0/8         scram-sha-256
+hostssl all   all   0.0.0.0/0          scram-sha-256
+```
+
+### Production
+
+```sql
+-- Strictest security
+-- pg_hba.conf
+local   all   postgres                 peer
+hostssl all   app_user   10.0.1.0/24   scram-sha-256
+hostssl all   admin      10.0.2.0/24   scram-sha-256
+host    all   all        0.0.0.0/0     reject
+```
+
 ## Summary
 
 | Topic | Key Points |
-|-------|------------|
+| ----- | ---------- |
 | **Roles** | Users are roles with LOGIN; use groups for organization |
 | **Privileges** | Grant minimum required permissions |
 | **RLS** | Row-level security for multi-tenant or user-specific data |

@@ -510,16 +510,103 @@ ORDER BY revenue DESC;
    ```
 :::
 
+## Common JOIN Mistakes
+
+### Mistake 1: Missing JOIN Condition (Accidental CROSS JOIN)
+
+```sql
+-- WRONG: Missing ON clause creates cartesian product!
+SELECT * FROM customers, orders;  -- Returns customers × orders rows!
+
+-- CORRECT: Always specify join condition
+SELECT * FROM customers c
+JOIN orders o ON c.id = o.customer_id;
+```
+
+### Mistake 2: Wrong Table in WHERE After LEFT JOIN
+
+```sql
+-- WRONG: This effectively converts to INNER JOIN
+SELECT c.name, o.order_date
+FROM customers c
+LEFT JOIN orders o ON c.id = o.customer_id
+WHERE o.status = 'completed';  -- Filters out customers with no orders!
+
+-- CORRECT: Include NULL check or move to ON clause
+SELECT c.name, o.order_date
+FROM customers c
+LEFT JOIN orders o ON c.id = o.customer_id
+    AND o.status = 'completed';  -- Move condition to ON
+```
+
+### Mistake 3: Joining on Wrong Column Types
+
+```sql
+-- SLOW: Implicit type conversion
+SELECT * FROM users u
+JOIN orders o ON u.id = o.user_id::INTEGER;  -- user_id is VARCHAR
+
+-- FAST: Same types, no conversion needed
+SELECT * FROM users u
+JOIN orders o ON u.id = o.user_id;  -- Both are INTEGER
+```
+
+### Mistake 4: N+1 Query Problem
+
+```sql
+-- BAD: Running separate queries in a loop (application code)
+-- For each customer: SELECT * FROM orders WHERE customer_id = ?
+
+-- GOOD: Single JOIN query
+SELECT c.*, o.*
+FROM customers c
+LEFT JOIN orders o ON c.id = o.customer_id;
+```
+
+## Advanced JOIN Patterns
+
+### LATERAL JOIN (Row-by-Row Processing)
+
+```sql
+-- Get the 3 most recent orders for each customer
+SELECT c.name, recent_orders.*
+FROM customers c
+CROSS JOIN LATERAL (
+    SELECT order_date, total
+    FROM orders
+    WHERE customer_id = c.id
+    ORDER BY order_date DESC
+    LIMIT 3
+) AS recent_orders;
+```
+
+### JOIN with Aggregation
+
+```sql
+-- Join on aggregated subquery
+SELECT c.name, order_stats.total_orders, order_stats.total_spent
+FROM customers c
+JOIN (
+    SELECT
+        customer_id,
+        COUNT(*) AS total_orders,
+        SUM(total) AS total_spent
+    FROM orders
+    GROUP BY customer_id
+) AS order_stats ON c.id = order_stats.customer_id;
+```
+
 ## Summary
 
 | JOIN Type | Description | Use Case |
-|-----------|-------------|----------|
+| --------- | ----------- | -------- |
 | **INNER** | Only matching rows | Related data that must exist |
 | **LEFT** | All left + matching right | Main table with optional data |
 | **RIGHT** | All right + matching left | Rarely used (use LEFT instead) |
 | **FULL OUTER** | All from both tables | Compare two datasets |
 | **CROSS** | All combinations | Generate combinations |
 | **SELF** | Table to itself | Hierarchical data |
+| **LATERAL** | Row-by-row subquery | Top N per group |
 
 ## Quick Reference
 

@@ -413,19 +413,40 @@ Once connected, these commands help you navigate:
 
 ::: warning Connection Refused
 If you get "connection refused":
+
 1. Check if PostgreSQL is running: `brew services list` (macOS) or `systemctl status postgresql` (Linux)
 2. Verify port 5432 is not blocked
 3. Check if another app is using port 5432
 :::
 
+```bash
+# Check what's using port 5432
+lsof -i :5432
+
+# macOS: Restart PostgreSQL
+brew services restart postgresql@16
+
+# Linux: Restart PostgreSQL
+sudo systemctl restart postgresql
+```
+
 ### Authentication Failed
 
 ::: warning Password Issues
 If authentication fails:
+
 1. Check you're using the correct username/password
 2. On Linux, check `/etc/postgresql/16/main/pg_hba.conf`
 3. Try connecting as the postgres user first
 :::
+
+```bash
+# Reset postgres user password
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'newpassword';"
+
+# Check pg_hba.conf location
+sudo -u postgres psql -c "SHOW hba_file;"
+```
 
 ### Permission Denied
 
@@ -436,6 +457,88 @@ sudo -u postgres psql
 # Or create a user matching your system username
 sudo -u postgres createuser --interactive
 ```
+
+### Common Error Messages and Solutions
+
+| Error | Cause | Solution |
+| ----- | ----- | -------- |
+| `FATAL: role "username" does not exist` | User not created | `createuser username` or connect as postgres first |
+| `FATAL: database "dbname" does not exist` | Database not created | `createdb dbname` |
+| `could not connect to server: No such file or directory` | PostgreSQL not running | Start the service |
+| `password authentication failed` | Wrong password | Reset password or check pg_hba.conf |
+| `permission denied for table` | Missing privileges | `GRANT` appropriate permissions |
+
+### Port Already in Use
+
+```bash
+# Find process using port 5432
+lsof -i :5432
+
+# Kill the process (replace PID)
+kill -9 <PID>
+
+# Or use a different port in postgresql.conf
+port = 5433
+
+# Connect with different port
+psql -p 5433 postgres
+```
+
+### Data Directory Issues
+
+```bash
+# Check data directory
+psql -c "SHOW data_directory;"
+
+# Reinitialize data directory (WARNING: destroys data!)
+# macOS
+rm -rf /opt/homebrew/var/postgresql@16
+initdb /opt/homebrew/var/postgresql@16
+
+# Linux
+sudo rm -rf /var/lib/postgresql/16/main
+sudo -u postgres /usr/lib/postgresql/16/bin/initdb -D /var/lib/postgresql/16/main
+```
+
+## GUI Tools (Optional)
+
+While `psql` is powerful, GUI tools can help visualize data:
+
+### pgAdmin (Free, Cross-platform)
+
+The official PostgreSQL admin tool:
+
+1. Download from [pgadmin.org](https://www.pgadmin.org/download/)
+2. Install and launch
+3. Add a new server connection:
+   - Name: Local PostgreSQL
+   - Host: localhost
+   - Port: 5432
+   - Username: postgres
+
+### DBeaver (Free, Cross-platform)
+
+A universal database tool:
+
+1. Download from [dbeaver.io](https://dbeaver.io/download/)
+2. Install and launch
+3. Create New Connection → PostgreSQL
+4. Enter connection details
+
+### TablePlus (Free tier, macOS/Windows/Linux)
+
+Modern, native database client:
+
+1. Download from [tableplus.com](https://tableplus.com/)
+2. Click "Create new connection"
+3. Select PostgreSQL and enter details
+
+### VS Code Extensions
+
+For developers who prefer staying in VS Code:
+
+- **PostgreSQL** by Chris Kolkman - Query execution and intellisense
+- **Database Client** by Weijan Chen - Multi-database support with GUI
 
 ## Summary
 

@@ -635,6 +635,160 @@ SELECT
 FROM employees;
 ```
 
+## Real-World Query Patterns
+
+### Pagination with Total Count
+
+```sql
+-- Efficient pagination with total count in one query
+WITH filtered AS (
+    SELECT *
+    FROM products
+    WHERE category = 'Electronics'
+),
+counted AS (
+    SELECT COUNT(*) AS total FROM filtered
+)
+SELECT
+    f.*,
+    c.total
+FROM filtered f, counted c
+ORDER BY f.created_at DESC
+LIMIT 20 OFFSET 0;
+```
+
+### Running Totals for Financial Reports
+
+```sql
+-- Daily revenue with running total
+SELECT
+    sale_date,
+    SUM(amount) AS daily_total,
+    SUM(SUM(amount)) OVER (
+        ORDER BY sale_date
+        ROWS UNBOUNDED PRECEDING
+    ) AS running_total
+FROM sales
+GROUP BY sale_date
+ORDER BY sale_date;
+```
+
+### Finding Gaps in Sequences
+
+```sql
+-- Find missing order IDs
+WITH all_ids AS (
+    SELECT generate_series(
+        (SELECT MIN(id) FROM orders),
+        (SELECT MAX(id) FROM orders)
+    ) AS id
+)
+SELECT a.id AS missing_id
+FROM all_ids a
+LEFT JOIN orders o ON a.id = o.id
+WHERE o.id IS NULL;
+```
+
+### Top N per Group
+
+```sql
+-- Top 3 products per category by sales
+WITH ranked AS (
+    SELECT
+        p.name,
+        p.category,
+        SUM(oi.quantity) AS total_sold,
+        ROW_NUMBER() OVER (
+            PARTITION BY p.category
+            ORDER BY SUM(oi.quantity) DESC
+        ) AS rank
+    FROM products p
+    JOIN order_items oi ON p.id = oi.product_id
+    GROUP BY p.id, p.name, p.category
+)
+SELECT name, category, total_sold
+FROM ranked
+WHERE rank <= 3;
+```
+
+### Year-over-Year Comparison
+
+```sql
+-- Compare monthly sales to same month last year
+WITH monthly_sales AS (
+    SELECT
+        DATE_TRUNC('month', sale_date) AS month,
+        SUM(amount) AS total
+    FROM sales
+    GROUP BY DATE_TRUNC('month', sale_date)
+)
+SELECT
+    month,
+    total AS current_total,
+    LAG(total, 12) OVER (ORDER BY month) AS last_year_total,
+    ROUND(
+        (total - LAG(total, 12) OVER (ORDER BY month)) /
+        NULLIF(LAG(total, 12) OVER (ORDER BY month), 0) * 100,
+        2
+    ) AS yoy_growth_percent
+FROM monthly_sales
+ORDER BY month DESC;
+```
+
+### Cohort Analysis
+
+```sql
+-- User retention by signup month
+WITH user_cohorts AS (
+    SELECT
+        user_id,
+        DATE_TRUNC('month', created_at) AS cohort_month
+    FROM users
+),
+user_activities AS (
+    SELECT
+        user_id,
+        DATE_TRUNC('month', activity_date) AS activity_month
+    FROM user_activities
+)
+SELECT
+    uc.cohort_month,
+    ua.activity_month,
+    COUNT(DISTINCT uc.user_id) AS active_users,
+    EXTRACT(MONTH FROM AGE(ua.activity_month, uc.cohort_month)) AS months_since_signup
+FROM user_cohorts uc
+JOIN user_activities ua ON uc.user_id = ua.user_id
+WHERE ua.activity_month >= uc.cohort_month
+GROUP BY uc.cohort_month, ua.activity_month
+ORDER BY uc.cohort_month, ua.activity_month;
+```
+
+## Query Performance Tips
+
+::: tip Optimization Guidelines
+
+1. **Use EXPLAIN ANALYZE** to understand query plans
+2. **Add indexes** on columns used in WHERE, JOIN, ORDER BY
+3. **Limit result sets** - use LIMIT during development
+4. **Avoid SELECT *** - fetch only needed columns
+5. **Use CTEs wisely** - they can prevent optimization in some cases
+6. **Consider materialized views** for complex aggregations
+:::
+
+```sql
+-- Check query performance
+EXPLAIN ANALYZE
+SELECT e.name, d.name AS department
+FROM employees e
+JOIN departments d ON e.department_id = d.id
+WHERE e.salary > 50000;
+
+-- Look for:
+-- - Seq Scan (might need index)
+-- - High cost numbers
+-- - Large row estimates
+```
+
 ## Summary
 
 In this chapter, you learned:
@@ -646,6 +800,7 @@ In this chapter, you learned:
 - **CTEs**: Named subqueries for readable code
 - **Recursive CTEs**: Handling hierarchical data
 - **Window Functions**: Calculations across related rows
+- **Real-world patterns**: Pagination, running totals, YoY comparison
 
 ## Quick Reference
 

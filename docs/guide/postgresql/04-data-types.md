@@ -550,6 +550,132 @@ FROM products;
 | **Arrays** | type[] | Multiple values |
 | **Enum** | Custom | Limited choices |
 
+## Common Type Conversion Pitfalls
+
+### Silent Truncation
+
+```sql
+-- VARCHAR truncates without warning in some modes
+CREATE TABLE test (name VARCHAR(5));
+INSERT INTO test VALUES ('Hello World');  -- Error: value too long!
+
+-- TEXT has no limit
+CREATE TABLE test2 (name TEXT);
+INSERT INTO test2 VALUES ('Hello World');  -- Works fine
+```
+
+### Numeric Precision Loss
+
+```sql
+-- REAL/FLOAT loses precision
+SELECT 0.1::REAL + 0.2::REAL = 0.3::REAL;  -- false!
+SELECT 0.1::REAL + 0.2::REAL;               -- 0.30000001192092896
+
+-- DECIMAL maintains precision
+SELECT 0.1::DECIMAL + 0.2::DECIMAL = 0.3::DECIMAL;  -- true
+```
+
+### Date/Time Pitfalls
+
+```sql
+-- TIMESTAMP vs TIMESTAMPTZ
+SET timezone = 'America/New_York';
+
+-- Without timezone (dangerous!)
+SELECT '2024-01-15 12:00:00'::TIMESTAMP;
+-- Returns: 2024-01-15 12:00:00 (no timezone info)
+
+-- With timezone (recommended)
+SELECT '2024-01-15 12:00:00'::TIMESTAMPTZ;
+-- Returns: 2024-01-15 12:00:00-05 (includes timezone)
+```
+
+### JSON vs JSONB Gotchas
+
+```sql
+-- JSON preserves everything (including duplicates)
+SELECT '{"a": 1, "a": 2}'::JSON;  -- {"a": 1, "a": 2}
+
+-- JSONB removes duplicates (keeps last value)
+SELECT '{"a": 1, "a": 2}'::JSONB;  -- {"a": 2}
+
+-- JSONB doesn't preserve key order
+SELECT '{"z": 1, "a": 2}'::JSONB;  -- {"a": 2, "z": 1}
+```
+
+## Real-World Type Selection Guide
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   Type Selection Decision Tree                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   Storing Money?                                                 │
+│   └── YES → DECIMAL(19,4) or NUMERIC(19,4)                      │
+│                                                                  │
+│   Storing IDs?                                                   │
+│   └── Distributed System → UUID                                 │
+│   └── Single Database → SERIAL/BIGSERIAL                        │
+│                                                                  │
+│   Storing Dates/Times?                                           │
+│   └── Date only → DATE                                          │
+│   └── With time → TIMESTAMPTZ (always!)                         │
+│   └── Duration → INTERVAL                                        │
+│                                                                  │
+│   Storing Text?                                                  │
+│   └── Fixed length (country codes) → CHAR(n)                    │
+│   └── Known max length → VARCHAR(n)                             │
+│   └── Unknown/variable length → TEXT                            │
+│                                                                  │
+│   Storing Flexible Data?                                         │
+│   └── Need to query it → JSONB                                  │
+│   └── Just store/retrieve → JSON                                │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## PostgreSQL-Specific Types Worth Knowing
+
+### Range Types
+
+```sql
+-- Built-in range types for intervals
+CREATE TABLE reservations (
+    id SERIAL PRIMARY KEY,
+    room_id INTEGER,
+    during TSTZRANGE,  -- Timestamp range
+    EXCLUDE USING GIST (room_id WITH =, during WITH &&)  -- No overlaps!
+);
+
+-- Insert a reservation
+INSERT INTO reservations (room_id, during) VALUES
+    (1, '[2024-01-15 14:00, 2024-01-15 16:00)');
+
+-- Query overlapping reservations
+SELECT * FROM reservations
+WHERE during && '[2024-01-15 15:00, 2024-01-15 17:00)';
+```
+
+### Domain Types (Custom Validation)
+
+```sql
+-- Create a domain for email validation
+CREATE DOMAIN email AS VARCHAR(255)
+CHECK (VALUE ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+
+-- Use in table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    user_email email NOT NULL  -- Automatically validates!
+);
+
+-- This works
+INSERT INTO users (user_email) VALUES ('test@example.com');
+
+-- This fails with validation error
+INSERT INTO users (user_email) VALUES ('invalid-email');
+```
+
 ## Best Practices
 
 ::: tip Choosing Data Types
@@ -560,6 +686,7 @@ FROM products;
 4. **Use JSONB over JSON** - Better performance
 5. **Use ENUM for fixed choices** - Prevents invalid values
 6. **Consider arrays for simple lists** - Avoids extra tables
+7. **Use domains for reusable validation** - Email, phone, etc.
 :::
 
 ## What's Next?

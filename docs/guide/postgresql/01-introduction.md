@@ -169,11 +169,70 @@ WHERE orders.created_at > '2024-01-01';
 :::
 
 ::: warning Consider Alternatives When:
+
 - **Simple mobile app storage** → Use SQLite
 - **Rapid prototyping with changing schemas** → Consider MongoDB
 - **Simple web applications with basic needs** → MySQL might be easier
 - **Massive scale distributed systems** → Consider specialized databases
+- **Real-time analytics on massive datasets** → Consider ClickHouse or TimescaleDB
+- **Graph-heavy relationships** → Consider Neo4j or PostgreSQL with Apache AGE
 :::
+
+## Common Misconceptions
+
+Let's address some myths about PostgreSQL:
+
+### Myth 1: "PostgreSQL is slower than MySQL"
+
+**Reality:** PostgreSQL often outperforms MySQL for complex queries, especially those involving:
+
+- Multiple JOINs
+- Subqueries and CTEs
+- JSON operations
+- Full-text search
+
+MySQL may be faster for simple read-heavy workloads with basic queries.
+
+### Myth 2: "PostgreSQL is hard to set up"
+
+**Reality:** Modern package managers make installation trivial:
+
+```bash
+# macOS
+brew install postgresql@16
+
+# Ubuntu
+sudo apt install postgresql
+
+# Docker
+docker run -d -e POSTGRES_PASSWORD=secret postgres:16
+```
+
+### Myth 3: "PostgreSQL doesn't scale"
+
+**Reality:** PostgreSQL scales excellently with:
+
+- **Vertical scaling**: Handles terabytes on single server
+- **Read replicas**: Native streaming replication
+- **Horizontal scaling**: Extensions like Citus for distributed queries
+- **Connection pooling**: PgBouncer handles thousands of connections
+
+Companies like Instagram, Discord, and Notion use PostgreSQL at massive scale.
+
+### Myth 4: "NoSQL is always better for flexible data"
+
+**Reality:** PostgreSQL's JSONB gives you the best of both worlds:
+
+```sql
+-- Store flexible data
+INSERT INTO products (name, attributes) VALUES
+('Laptop', '{"brand": "Dell", "specs": {"ram": 16, "storage": 512}}');
+
+-- Query JSON with SQL
+SELECT name FROM products
+WHERE attributes->>'brand' = 'Dell'
+AND (attributes->'specs'->>'ram')::int >= 16;
+```
 
 ## Real-World Use Cases
 
@@ -198,6 +257,13 @@ WHERE orders.created_at > '2024-01-01';
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+**Why PostgreSQL excels here:**
+
+- **ACID transactions** ensure orders are never partially processed
+- **Foreign keys** maintain data integrity between customers, orders, and products
+- **JSON support** allows flexible product attributes without schema changes
+- **Full-text search** enables fast product searches
 
 ### Social Media Application
 
@@ -228,6 +294,75 @@ SELECT
 FROM orders
 GROUP BY DATE_TRUNC('month', created_at)
 ORDER BY month DESC;
+```
+
+### Content Management System (CMS)
+
+```sql
+-- Storing articles with flexible metadata
+CREATE TABLE articles (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE,
+    content TEXT,
+    metadata JSONB,  -- Flexible: tags, SEO, custom fields
+    published_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Full-text search for articles
+CREATE INDEX idx_articles_search ON articles
+USING GIN (to_tsvector('english', title || ' ' || content));
+
+-- Search articles
+SELECT title, ts_rank(
+    to_tsvector('english', title || ' ' || content),
+    to_tsquery('english', 'postgresql & tutorial')
+) AS relevance
+FROM articles
+WHERE to_tsvector('english', title || ' ' || content)
+    @@ to_tsquery('english', 'postgresql & tutorial')
+ORDER BY relevance DESC;
+```
+
+### IoT and Time-Series Data
+
+```sql
+-- Sensor readings with time-based partitioning
+CREATE TABLE sensor_readings (
+    sensor_id INTEGER,
+    reading_time TIMESTAMPTZ NOT NULL,
+    temperature DECIMAL(5,2),
+    humidity DECIMAL(5,2),
+    PRIMARY KEY (sensor_id, reading_time)
+) PARTITION BY RANGE (reading_time);
+
+-- Create monthly partitions
+CREATE TABLE sensor_readings_2024_01 PARTITION OF sensor_readings
+    FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
+
+-- Efficient time-range queries with BRIN index
+CREATE INDEX idx_readings_time ON sensor_readings USING BRIN (reading_time);
+```
+
+### Geospatial Applications
+
+```sql
+-- Using PostGIS extension for location data
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+CREATE TABLE stores (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    location GEOGRAPHY(POINT, 4326)  -- Latitude/Longitude
+);
+
+-- Find stores within 5km of a location
+SELECT name,
+    ST_Distance(location, ST_MakePoint(104.9282, 11.5564)::geography) / 1000 AS distance_km
+FROM stores
+WHERE ST_DWithin(location, ST_MakePoint(104.9282, 11.5564)::geography, 5000)
+ORDER BY distance_km;
 ```
 
 ## Brief History

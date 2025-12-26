@@ -461,10 +461,135 @@ CREATE INDEX idx_products_category ON products(category_id);
 EXPLAIN ANALYZE [query above];
 ```
 
+## Reading EXPLAIN Output Like a Pro
+
+```sql
+EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
+SELECT * FROM orders WHERE customer_id = 123;
+```
+
+### Key Metrics to Watch
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   EXPLAIN Output Explained                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   Index Scan using idx_orders_customer (cost=0.29..8.31 rows=1) │
+│                                         ▲          ▲        ▲   │
+│                                         │          │        │   │
+│   Startup cost ─────────────────────────┘          │        │   │
+│   Total cost ──────────────────────────────────────┘        │   │
+│   Estimated rows ───────────────────────────────────────────┘   │
+│                                                                  │
+│   (actual time=0.025..0.026 rows=1 loops=1)                     │
+│              ▲           ▲        ▲       ▲                     │
+│              │           │        │       │                     │
+│   Actual startup ────────┘        │       │                     │
+│   Actual total ───────────────────┘       │                     │
+│   Actual rows returned ───────────────────┘                     │
+│   Number of executions ────────────────────                     │
+│                                                                  │
+│   Buffers: shared hit=3 read=1                                  │
+│                    ▲        ▲                                    │
+│   Pages from cache ┘        └── Pages from disk (slow!)         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Red Flags in Query Plans
+
+```sql
+-- Bad signs to look for:
+
+-- 1. Seq Scan on large tables
+Seq Scan on orders (rows=1000000)  -- Should use index!
+
+-- 2. High actual vs estimated rows
+(cost=... rows=10) (actual rows=100000)  -- Bad statistics!
+-- Fix: ANALYZE orders;
+
+-- 3. Many disk reads
+Buffers: shared read=10000  -- Needs more memory or better query
+
+-- 4. Nested Loop on large tables
+Nested Loop (actual time=0.1..5000.0 rows=1000000)
+-- Consider Hash Join or index
+```
+
+## Index Selection Flowchart
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   Which Index Type to Use?                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   Query Pattern                      Recommended Index           │
+│   ─────────────                      ─────────────────           │
+│                                                                  │
+│   = , < , > , BETWEEN               B-tree (default)            │
+│   LIKE 'prefix%'                    B-tree                      │
+│   LIKE '%suffix'                    GIN with pg_trgm            │
+│                                                                  │
+│   JSON containment (@>)             GIN                         │
+│   Array operations (&&, @>)         GIN                         │
+│   Full-text search (@@)             GIN                         │
+│                                                                  │
+│   Geometry/Geography                GiST or SP-GiST             │
+│   Range types (&&)                  GiST                        │
+│   Nearest neighbor (<->)            GiST                        │
+│                                                                  │
+│   Large sorted tables               BRIN (much smaller!)        │
+│   Time-series data                  BRIN                        │
+│                                                                  │
+│   Only equality (=)                 Hash (rarely better)        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Index Maintenance Checklist
+
+```sql
+-- 1. Find unused indexes (candidates for removal)
+SELECT
+    schemaname || '.' || relname AS table,
+    indexrelname AS index,
+    pg_size_pretty(pg_relation_size(i.indexrelid)) AS size,
+    idx_scan AS scans
+FROM pg_stat_user_indexes i
+JOIN pg_index USING (indexrelid)
+WHERE NOT indisunique  -- Keep unique constraints
+  AND idx_scan = 0
+  AND pg_relation_size(i.indexrelid) > 1024 * 1024  -- > 1MB
+ORDER BY pg_relation_size(i.indexrelid) DESC;
+
+-- 2. Find missing indexes (high seq scans)
+SELECT
+    schemaname || '.' || relname AS table,
+    seq_scan,
+    seq_tup_read,
+    idx_scan,
+    n_live_tup AS rows
+FROM pg_stat_user_tables
+WHERE seq_scan > idx_scan
+  AND n_live_tup > 10000
+ORDER BY seq_tup_read DESC
+LIMIT 10;
+
+-- 3. Check index bloat
+SELECT
+    schemaname || '.' || tablename AS table,
+    indexname,
+    pg_size_pretty(pg_relation_size(indexname::regclass)) AS size
+FROM pg_indexes
+WHERE schemaname = 'public'
+ORDER BY pg_relation_size(indexname::regclass) DESC;
+```
+
 ## Summary
 
 | Topic | Key Points |
-|-------|------------|
+| ----- | ---------- |
 | **What** | Indexes speed up data retrieval |
 | **When** | WHERE, JOIN, ORDER BY columns |
 | **Types** | B-tree (default), GIN (JSON/arrays), GiST (geo) |

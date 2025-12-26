@@ -527,16 +527,173 @@ END;
 $$;
 ```
 
+## Real-World Function Examples
+
+### Slug Generator
+
+```sql
+CREATE OR REPLACE FUNCTION generate_slug(title TEXT)
+RETURNS TEXT
+LANGUAGE SQL
+IMMUTABLE
+AS $$
+    SELECT LOWER(
+        REGEXP_REPLACE(
+            REGEXP_REPLACE(
+                TRIM(title),
+                '[^a-zA-Z0-9\s-]', '', 'g'  -- Remove special chars
+            ),
+            '\s+', '-', 'g'  -- Replace spaces with hyphens
+        )
+    );
+$$;
+
+-- Usage
+SELECT generate_slug('Hello World! This is a Test');
+-- Result: 'hello-world-this-is-a-test'
+```
+
+### Audit Trigger Function
+
+```sql
+-- Create audit table
+CREATE TABLE audit_log (
+    id SERIAL PRIMARY KEY,
+    table_name TEXT,
+    operation TEXT,
+    old_data JSONB,
+    new_data JSONB,
+    changed_by TEXT DEFAULT current_user,
+    changed_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create trigger function
+CREATE OR REPLACE FUNCTION audit_trigger()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        INSERT INTO audit_log (table_name, operation, old_data)
+        VALUES (TG_TABLE_NAME, TG_OP, row_to_json(OLD)::jsonb);
+        RETURN OLD;
+    ELSIF TG_OP = 'UPDATE' THEN
+        INSERT INTO audit_log (table_name, operation, old_data, new_data)
+        VALUES (TG_TABLE_NAME, TG_OP, row_to_json(OLD)::jsonb, row_to_json(NEW)::jsonb);
+        RETURN NEW;
+    ELSIF TG_OP = 'INSERT' THEN
+        INSERT INTO audit_log (table_name, operation, new_data)
+        VALUES (TG_TABLE_NAME, TG_OP, row_to_json(NEW)::jsonb);
+        RETURN NEW;
+    END IF;
+END;
+$$;
+
+-- Apply to a table
+CREATE TRIGGER users_audit
+AFTER INSERT OR UPDATE OR DELETE ON users
+FOR EACH ROW EXECUTE FUNCTION audit_trigger();
+```
+
+### Updated_at Trigger
+
+```sql
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$;
+
+-- Apply to any table with updated_at column
+CREATE TRIGGER set_updated_at
+BEFORE UPDATE ON products
+FOR EACH ROW EXECUTE FUNCTION update_modified_column();
+```
+
+### Search Function with Ranking
+
+```sql
+CREATE OR REPLACE FUNCTION search_articles(search_query TEXT)
+RETURNS TABLE(
+    id INTEGER,
+    title TEXT,
+    excerpt TEXT,
+    relevance REAL
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        a.id,
+        a.title,
+        LEFT(a.content, 200) || '...' AS excerpt,
+        ts_rank(
+            to_tsvector('english', a.title || ' ' || a.content),
+            plainto_tsquery('english', search_query)
+        ) AS relevance
+    FROM articles a
+    WHERE to_tsvector('english', a.title || ' ' || a.content)
+        @@ plainto_tsquery('english', search_query)
+    ORDER BY relevance DESC
+    LIMIT 20;
+END;
+$$;
+
+-- Usage
+SELECT * FROM search_articles('postgresql tutorial');
+```
+
+## Function Best Practices
+
+::: tip When to Use Functions
+
+1. **Reusable logic** - Complex calculations used in multiple places
+2. **Data validation** - Custom constraints beyond CHECK
+3. **Audit trails** - Automatic logging with triggers
+4. **API abstraction** - Hide complex queries behind simple interfaces
+5. **Security** - Execute with definer rights (SECURITY DEFINER)
+:::
+
+::: warning Function Pitfalls
+
+1. **Avoid SELECT *** in functions - breaks if schema changes
+2. **Use IMMUTABLE/STABLE/VOLATILE** correctly for optimization
+3. **Handle NULL inputs** - unexpected NULLs cause issues
+4. **Test error handling** - use EXCEPTION blocks wisely
+5. **Consider performance** - PL/pgSQL is slower than pure SQL
+:::
+
+```sql
+-- Function volatility categories:
+-- IMMUTABLE: Always returns same result for same inputs (can be cached)
+-- STABLE: Returns same result within single query (current_timestamp)
+-- VOLATILE: Can return different results (random(), sequences)
+
+CREATE OR REPLACE FUNCTION calculate_tax(amount DECIMAL)
+RETURNS DECIMAL
+LANGUAGE SQL
+IMMUTABLE  -- Safe to cache, no side effects
+AS $$
+    SELECT amount * 0.10;
+$$;
+```
+
 ## Summary
 
 | Category | Key Functions |
-|----------|---------------|
+| -------- | ------------- |
 | **String** | LENGTH, UPPER, LOWER, SUBSTRING, CONCAT, REPLACE |
 | **Numeric** | ROUND, CEIL, FLOOR, ABS, MOD, RANDOM |
 | **Date/Time** | NOW, EXTRACT, DATE_TRUNC, AGE, TO_CHAR |
 | **Conditional** | CASE, COALESCE, NULLIF, GREATEST, LEAST |
 | **JSON** | JSON_BUILD_OBJECT, ->, ->>, jsonb_set |
 | **Array** | ARRAY_AGG, UNNEST, ANY, ARRAY_LENGTH |
+| **Custom** | CREATE FUNCTION, triggers, RETURNS TABLE |
 
 ## What's Next?
 

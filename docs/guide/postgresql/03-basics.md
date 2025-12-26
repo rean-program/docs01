@@ -520,6 +520,134 @@ WHERE status = 'completed'
   AND updated_at < NOW() - INTERVAL '30 days';
 ```
 
+## Common Mistakes and How to Avoid Them
+
+### Mistake 1: Forgetting WHERE in UPDATE/DELETE
+
+```sql
+-- DANGEROUS: Updates ALL rows!
+UPDATE employees SET salary = 50000;
+
+-- SAFE: Always use WHERE
+UPDATE employees SET salary = 50000 WHERE id = 5;
+
+-- TIP: Run SELECT first to verify
+SELECT * FROM employees WHERE id = 5;
+-- Then change to UPDATE
+UPDATE employees SET salary = 50000 WHERE id = 5;
+```
+
+### Mistake 2: Using SELECT * in Production
+
+```sql
+-- BAD: Selects all columns (slow, wasteful)
+SELECT * FROM employees;
+
+-- GOOD: Select only needed columns
+SELECT id, name, email FROM employees;
+```
+
+### Mistake 3: Not Using Transactions for Related Operations
+
+```sql
+-- BAD: If second INSERT fails, first one remains
+INSERT INTO orders (customer_id, total) VALUES (1, 100);
+INSERT INTO order_items (order_id, product_id) VALUES (LASTVAL(), 999);
+
+-- GOOD: Wrap in transaction
+BEGIN;
+INSERT INTO orders (customer_id, total) VALUES (1, 100);
+INSERT INTO order_items (order_id, product_id) VALUES (LASTVAL(), 1);
+COMMIT;
+```
+
+### Mistake 4: NULL Comparisons
+
+```sql
+-- WRONG: NULL cannot be compared with =
+SELECT * FROM employees WHERE manager_id = NULL;  -- Returns nothing!
+
+-- CORRECT: Use IS NULL / IS NOT NULL
+SELECT * FROM employees WHERE manager_id IS NULL;
+SELECT * FROM employees WHERE manager_id IS NOT NULL;
+```
+
+### Mistake 5: String vs Number Confusion
+
+```sql
+-- WRONG: Comparing string to number
+SELECT * FROM products WHERE id = '5';  -- Works but inefficient
+
+-- CORRECT: Use proper types
+SELECT * FROM products WHERE id = 5;
+
+-- WRONG: Numeric comparison on string
+SELECT * FROM products WHERE price > '100';  -- Alphabetic comparison!
+
+-- CORRECT: Cast if needed
+SELECT * FROM products WHERE price::numeric > 100;
+```
+
+## Best Practices
+
+::: tip Database Design Best Practices
+
+1. **Always use PRIMARY KEY** - Every table should have a unique identifier
+2. **Use meaningful names** - `user_created_at` is better than `uca`
+3. **Be consistent** - Pick a naming convention and stick to it (snake_case recommended)
+4. **Use appropriate data types** - Don't store dates as strings
+5. **Add constraints** - Let the database enforce data integrity
+6. **Normalize data** - Avoid duplication, use relationships
+:::
+
+::: tip Query Best Practices
+
+1. **Always use WHERE with UPDATE/DELETE** - Verify with SELECT first
+2. **Use LIMIT during development** - Prevent accidentally loading millions of rows
+3. **Select specific columns** - Avoid `SELECT *` in production
+4. **Use parameterized queries** - Never concatenate user input (prevents SQL injection)
+5. **Use transactions** - Group related operations together
+:::
+
+## Useful psql Commands
+
+```sql
+-- Show all tables
+\dt
+
+-- Describe table structure
+\d table_name
+\d+ table_name  -- More detail
+
+-- Show all databases
+\l
+
+-- Connect to database
+\c database_name
+
+-- Show current database and user
+\conninfo
+
+-- Execute SQL file
+\i /path/to/file.sql
+
+-- Save query results to file
+\o output.txt
+SELECT * FROM employees;
+\o  -- Stop saving
+
+-- Toggle expanded display (vertical output)
+\x
+
+-- Show query execution time
+\timing
+
+-- Get help
+\?     -- psql commands
+\h     -- SQL commands
+\h SELECT  -- Help for specific command
+```
+
 ## Summary
 
 In this chapter, you learned:
@@ -535,6 +663,8 @@ In this chapter, you learned:
 - **Filtering**: WHERE clause with comparison and logical operators
 - **Sorting**: ORDER BY with ASC/DESC
 - **Pagination**: LIMIT and OFFSET
+- **Common mistakes**: NULL handling, missing WHERE clause, SELECT *
+- **Best practices**: Naming conventions, constraints, transactions
 
 ## Quick Reference
 

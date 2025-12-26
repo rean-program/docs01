@@ -54,17 +54,45 @@ export default defineConfig({
           { text: 'Express', link: '/guide/express/' },
           { text: 'NestJS', link: '/guide/nestjs/' },
           { text: 'PostgreSQL', link: '/guide/postgresql/' },
+          { text: 'SQL Server', link: '/guide/sqlserver/' },
         ],
       },
-      { text: 'PostgreSQL', link: '/guide/postgresql/' },
+      {
+        text: 'Databases',
+        items: [
+          { text: 'PostgreSQL', link: '/guide/postgresql/' },
+          { text: 'SQL Server', link: '/guide/sqlserver/' },
+        ],
+      },
     ],
 
     // Sidebar navigation
     sidebar: {
-      // PostgreSQL dedicated sidebar
+      // SQL Server dedicated sidebar (must come before '/')
+      '/guide/sqlserver/': [
+        {
+          text: 'SQL Server',
+          collapsed: false,
+          items: [
+            { text: 'Overview', link: '/guide/sqlserver/' },
+            { text: 'Introduction', link: '/guide/sqlserver/01-introduction' },
+            { text: 'Installation', link: '/guide/sqlserver/02-installation' },
+            { text: 'T-SQL Basics', link: '/guide/sqlserver/03-basics' },
+            { text: 'Data Types', link: '/guide/sqlserver/04-data-types' },
+            { text: 'Queries', link: '/guide/sqlserver/05-queries' },
+            { text: 'JOINs', link: '/guide/sqlserver/06-joins' },
+            { text: 'Stored Procedures', link: '/guide/sqlserver/07-stored-procedures' },
+            { text: 'Indexes', link: '/guide/sqlserver/08-indexes' },
+            { text: 'Transactions', link: '/guide/sqlserver/09-transactions' },
+            { text: 'Security', link: '/guide/sqlserver/10-security' },
+          ],
+        },
+      ],
+      // PostgreSQL dedicated sidebar (must come before '/')
       '/guide/postgresql/': [
         {
           text: 'PostgreSQL',
+          collapsed: false,
           items: [
             { text: 'Overview', link: '/guide/postgresql/' },
             { text: 'Introduction', link: '/guide/postgresql/01-introduction' },
@@ -80,7 +108,7 @@ export default defineConfig({
           ],
         },
       ],
-      // Default sidebar
+      // Default sidebar (must come last)
       '/': [
         {
           text: 'Guide',

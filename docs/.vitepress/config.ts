@@ -55,7 +55,8 @@ export default defineConfig({
           {
             text: 'Database',
             items: [
-              { text: 'PostgreSQL', link: '/guide/postgresql/' }
+              { text: 'PostgreSQL', link: '/guide/postgresql/' },
+              { text: 'SQL Server', link: '/guide/sqlserver/' }
             ]
           },
           { text: 'AI', link: '/guide/ai/' },
@@ -128,6 +129,7 @@ export default defineConfig({
                 { text: '.NET', link: '/guide/dotnet/' },
                 { text: 'Docker', link: '/guide/docker/' },
                 { text: 'PostgreSQL', link: '/guide/postgresql/' },
+                { text: 'SQL Server', link: '/guide/sqlserver/' },
                 { text: 'AI & Machine Learning', link: '/guide/ai/' },
                 { text: 'Vue.js', link: '/guide/vue/' }
               ]
@@ -702,6 +704,42 @@ export default defineConfig({
                     { text: 'Indexes', link: '/guide/postgresql/08-indexes' },
                     { text: 'Transactions', link: '/guide/postgresql/09-transactions' },
                     { text: 'Security', link: '/guide/postgresql/10-security' }
+                  ]
+                }
+              ]
+            }
+          ],
+          '/guide/sqlserver/': [
+            {
+              text: 'SQL Server Tutorial',
+              items: [
+                { text: 'Introduction', link: '/guide/sqlserver/' },
+                {
+                  text: 'Beginner',
+                  collapsed: false,
+                  items: [
+                    { text: 'What is SQL Server?', link: '/guide/sqlserver/01-introduction' },
+                    { text: 'Installation', link: '/guide/sqlserver/02-installation' },
+                    { text: 'SQL Basics', link: '/guide/sqlserver/03-basics' },
+                    { text: 'Data Types', link: '/guide/sqlserver/04-data-types' }
+                  ]
+                },
+                {
+                  text: 'Intermediate',
+                  collapsed: false,
+                  items: [
+                    { text: 'Queries', link: '/guide/sqlserver/05-queries' },
+                    { text: 'JOINs', link: '/guide/sqlserver/06-joins' },
+                    { text: 'Stored Procedures', link: '/guide/sqlserver/07-stored-procedures' }
+                  ]
+                },
+                {
+                  text: 'Advanced',
+                  collapsed: false,
+                  items: [
+                    { text: 'Indexes', link: '/guide/sqlserver/08-indexes' },
+                    { text: 'Transactions', link: '/guide/sqlserver/09-transactions' },
+                    { text: 'Security', link: '/guide/sqlserver/10-security' }
                   ]
                 }
               ]

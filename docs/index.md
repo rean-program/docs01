@@ -99,6 +99,12 @@ features:
     details: Powerful open-source relational database - SQL basics, queries, joins, transactions, and security.
     link: /guide/postgresql/
     linkText: Learn PostgreSQL
+  - icon:
+      src: /frameworks/sqlserver.png
+    title: SQL Server
+    details: Microsoft's enterprise database - T-SQL, stored procedures, indexes, transactions, and security.
+    link: /guide/sqlserver/
+    linkText: Learn SQL Server
 ---
 
 <style>

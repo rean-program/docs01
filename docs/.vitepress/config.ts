@@ -52,6 +52,12 @@ export default defineConfig({
               { text: 'Docker', link: '/guide/docker/' }
             ]
           },
+          {
+            text: 'Database',
+            items: [
+              { text: 'PostgreSQL', link: '/guide/postgresql/' }
+            ]
+          },
           { text: 'AI', link: '/guide/ai/' },
           // { text: 'Author', link: '/creator' }
         ],
@@ -121,6 +127,7 @@ export default defineConfig({
                 { text: 'C#', link: '/guide/csharp/' },
                 { text: '.NET', link: '/guide/dotnet/' },
                 { text: 'Docker', link: '/guide/docker/' },
+                { text: 'PostgreSQL', link: '/guide/postgresql/' },
                 { text: 'AI & Machine Learning', link: '/guide/ai/' },
                 { text: 'Vue.js', link: '/guide/vue/' }
               ]
@@ -659,6 +666,42 @@ export default defineConfig({
                   items: [
                     { text: 'Docker in Production', link: '/guide/docker/09-production' },
                     { text: 'Docker Orchestration', link: '/guide/docker/10-orchestration' }
+                  ]
+                }
+              ]
+            }
+          ],
+          '/guide/postgresql/': [
+            {
+              text: 'PostgreSQL Tutorial',
+              items: [
+                { text: 'Introduction', link: '/guide/postgresql/' },
+                {
+                  text: 'Beginner',
+                  collapsed: false,
+                  items: [
+                    { text: 'What is PostgreSQL?', link: '/guide/postgresql/01-introduction' },
+                    { text: 'Installation', link: '/guide/postgresql/02-installation' },
+                    { text: 'SQL Basics', link: '/guide/postgresql/03-basics' },
+                    { text: 'Data Types', link: '/guide/postgresql/04-data-types' }
+                  ]
+                },
+                {
+                  text: 'Intermediate',
+                  collapsed: false,
+                  items: [
+                    { text: 'Queries', link: '/guide/postgresql/05-queries' },
+                    { text: 'JOINs', link: '/guide/postgresql/06-joins' },
+                    { text: 'Functions', link: '/guide/postgresql/07-functions' }
+                  ]
+                },
+                {
+                  text: 'Advanced',
+                  collapsed: false,
+                  items: [
+                    { text: 'Indexes', link: '/guide/postgresql/08-indexes' },
+                    { text: 'Transactions', link: '/guide/postgresql/09-transactions' },
+                    { text: 'Security', link: '/guide/postgresql/10-security' }
                   ]
                 }
               ]

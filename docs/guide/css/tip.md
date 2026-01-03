@@ -1,3 +1,5 @@
 # Tips
 
-<CssTip />
+<ClientOnly>
+  <CssTip />
+</ClientOnly>

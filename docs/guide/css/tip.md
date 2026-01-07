@@ -1,5 +1,7 @@
 # Tips
 
-<ClientOnly>
-  <CssTip />
-</ClientOnly>
+<CssTip />
+
+<script setup>
+import CssTip from "../../components/css/CssTip.vue";
+</script>

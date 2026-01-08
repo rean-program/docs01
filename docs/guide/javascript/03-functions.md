@@ -885,6 +885,334 @@ handleSearch("hello");
 ```
 :::
 
+## Common Mistakes and Pitfalls
+
+::: danger Avoid These Function Mistakes
+:::
+
+### 1. Losing `this` Context
+
+```js
+const user = {
+    name: "Alice",
+    greet() {
+        console.log(`Hello, ${this.name}`);
+    }
+};
+
+// ❌ Lost context when passing as callback
+setTimeout(user.greet, 1000); // "Hello, undefined"
+
+// ✅ Fix with bind
+setTimeout(user.greet.bind(user), 1000); // "Hello, Alice"
+
+// ✅ Or wrap in arrow function
+setTimeout(() => user.greet(), 1000); // "Hello, Alice"
+```
+
+### 2. Arrow Functions for Object Methods
+
+```js
+const counter = {
+    count: 0,
+    // ❌ Arrow function doesn't have its own 'this'
+    incrementBad: () => {
+        this.count++; // 'this' is not the counter object!
+    },
+    // ✅ Use regular function for methods
+    incrementGood() {
+        this.count++;
+    }
+};
+```
+
+### 3. Forgetting Return in Arrow Functions
+
+```js
+// ❌ No return with curly braces
+const double = x => { x * 2 };
+console.log(double(5)); // undefined
+
+// ✅ With curly braces, need explicit return
+const doubleFixed = x => { return x * 2 };
+
+// ✅ Or omit curly braces for implicit return
+const doubleBest = x => x * 2;
+```
+
+### 4. Infinite Recursion
+
+```js
+// ❌ Missing or wrong base case
+function badRecursion(n) {
+    return n + badRecursion(n - 1); // Never stops!
+}
+
+// ✅ Always have a proper base case
+function goodRecursion(n) {
+    if (n <= 0) return 0; // Base case
+    return n + goodRecursion(n - 1);
+}
+```
+
+## Interview Questions
+
+::: details Q: What is a closure and why is it useful?
+**Answer:**
+A closure is a function that has access to variables from its outer (enclosing) scope, even after that outer function has returned.
+
+**Use cases:**
+- Data privacy (module pattern)
+- Function factories
+- Maintaining state in async operations
+- Partial application and currying
+
+```js
+function createCounter() {
+    let count = 0; // Private variable
+    return {
+        increment: () => ++count,
+        getCount: () => count
+    };
+}
+
+const counter = createCounter();
+counter.increment(); // 1
+counter.increment(); // 2
+// count is not directly accessible
+```
+:::
+
+::: details Q: What's the difference between `call`, `apply`, and `bind`?
+**Answer:**
+
+| Method | When it runs | Arguments | Returns |
+|--------|--------------|-----------|---------|
+| `call` | Immediately | List: `a, b, c` | Function result |
+| `apply` | Immediately | Array: `[a, b, c]` | Function result |
+| `bind` | Later (when called) | List: `a, b, c` | New function |
+
+```js
+function greet(greeting, punctuation) {
+    return `${greeting}, ${this.name}${punctuation}`;
+}
+
+const person = { name: "Alice" };
+
+// call - runs immediately, args as list
+greet.call(person, "Hello", "!"); // "Hello, Alice!"
+
+// apply - runs immediately, args as array
+greet.apply(person, ["Hi", "?"]); // "Hi, Alice?"
+
+// bind - returns new function for later
+const boundGreet = greet.bind(person, "Hey");
+boundGreet("!"); // "Hey, Alice!"
+```
+:::
+
+::: details Q: What is function hoisting?
+**Answer:**
+Function declarations are hoisted completely, meaning you can call them before they appear in the code.
+
+Function expressions (including arrow functions) are NOT hoisted - they follow variable hoisting rules.
+
+```js
+// Works - function declaration is hoisted
+sayHello(); // "Hello!"
+function sayHello() {
+    console.log("Hello!");
+}
+
+// Error - function expression not hoisted
+// sayGoodbye(); // TypeError: sayGoodbye is not a function
+const sayGoodbye = function() {
+    console.log("Goodbye!");
+};
+```
+:::
+
+## Real-World Examples
+
+### API Request Handler
+
+```js
+// Reusable API handler with error handling
+async function apiRequest(url, options = {}) {
+    const defaultOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        timeout: 5000,
+    };
+
+    const config = { ...defaultOptions, ...options };
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), config.timeout);
+
+    try {
+        const response = await fetch(url, {
+            ...config,
+            signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            throw new Error('Request timed out');
+        }
+        throw error;
+    }
+}
+
+// Usage
+async function getUser(id) {
+    return apiRequest(`/api/users/${id}`);
+}
+
+async function createUser(userData) {
+    return apiRequest('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+    });
+}
+```
+
+### Event Handler Factory
+
+```js
+// Create event handlers with configurable behavior
+function createClickHandler(config) {
+    const {
+        preventDefault = true,
+        stopPropagation = false,
+        debounceMs = 0,
+        onSuccess,
+        onError,
+    } = config;
+
+    let timeoutId;
+
+    return function handleClick(event) {
+        if (preventDefault) event.preventDefault();
+        if (stopPropagation) event.stopPropagation();
+
+        const execute = async () => {
+            try {
+                await config.action(event);
+                onSuccess?.();
+            } catch (error) {
+                onError?.(error);
+            }
+        };
+
+        if (debounceMs > 0) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(execute, debounceMs);
+        } else {
+            execute();
+        }
+    };
+}
+
+// Usage
+const submitHandler = createClickHandler({
+    action: async (e) => {
+        const form = e.target.closest('form');
+        const data = new FormData(form);
+        await fetch('/api/submit', {
+            method: 'POST',
+            body: data,
+        });
+    },
+    debounceMs: 300,
+    onSuccess: () => console.log('Submitted!'),
+    onError: (err) => console.error('Failed:', err),
+});
+
+button.addEventListener('click', submitHandler);
+```
+
+### Validation Pipeline
+
+```js
+// Composable validation functions
+const validators = {
+    required: (fieldName) => (value) => {
+        if (!value || value.trim() === '') {
+            return `${fieldName} is required`;
+        }
+        return null;
+    },
+
+    minLength: (min) => (value) => {
+        if (value && value.length < min) {
+            return `Must be at least ${min} characters`;
+        }
+        return null;
+    },
+
+    maxLength: (max) => (value) => {
+        if (value && value.length > max) {
+            return `Must be no more than ${max} characters`;
+        }
+        return null;
+    },
+
+    email: () => (value) => {
+        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (value && !pattern.test(value)) {
+            return 'Invalid email format';
+        }
+        return null;
+    },
+
+    matches: (pattern, message) => (value) => {
+        if (value && !pattern.test(value)) {
+            return message;
+        }
+        return null;
+    },
+};
+
+// Combine validators
+function createValidator(...validatorFns) {
+    return function validate(value) {
+        for (const validator of validatorFns) {
+            const error = validator(value);
+            if (error) return error;
+        }
+        return null;
+    };
+}
+
+// Usage
+const validateUsername = createValidator(
+    validators.required('Username'),
+    validators.minLength(3),
+    validators.maxLength(20),
+    validators.matches(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores')
+);
+
+const validateEmail = createValidator(
+    validators.required('Email'),
+    validators.email()
+);
+
+console.log(validateUsername('')); // "Username is required"
+console.log(validateUsername('ab')); // "Must be at least 3 characters"
+console.log(validateUsername('valid_user')); // null (valid)
+```
+
 ## Summary
 
 | Concept | Description | Example |

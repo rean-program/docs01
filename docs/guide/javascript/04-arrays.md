@@ -799,6 +799,406 @@ console.log(symmetricDifference(a, b)); // [1, 2, 3, 6, 7, 8]
 ```
 :::
 
+## Common Mistakes and Pitfalls
+
+::: danger Avoid These Array Mistakes
+:::
+
+### 1. Modifying Arrays During Iteration
+
+```js
+const numbers = [1, 2, 3, 4, 5];
+
+// ❌ Modifying array while looping causes issues
+for (let i = 0; i < numbers.length; i++) {
+    if (numbers[i] % 2 === 0) {
+        numbers.splice(i, 1); // Removes element, shifts indices!
+    }
+}
+console.log(numbers); // [1, 3, 5] - but 4 was skipped!
+
+// ✅ Use filter instead
+const odds = [1, 2, 3, 4, 5].filter(n => n % 2 !== 0);
+
+// ✅ Or iterate backwards
+for (let i = numbers.length - 1; i >= 0; i--) {
+    if (numbers[i] % 2 === 0) {
+        numbers.splice(i, 1);
+    }
+}
+```
+
+### 2. Forgetting That sort() Mutates
+
+```js
+const original = [3, 1, 4, 1, 5];
+
+// ❌ Mutates the original array
+const sorted = original.sort((a, b) => a - b);
+console.log(original); // [1, 1, 3, 4, 5] - changed!
+
+// ✅ Create a copy first
+const safeSorted = [...original].sort((a, b) => a - b);
+// Or use toSorted() (ES2023)
+const safeSorted2 = original.toSorted((a, b) => a - b);
+```
+
+### 3. Using indexOf for Objects
+
+```js
+const users = [{ id: 1 }, { id: 2 }, { id: 3 }];
+const searchUser = { id: 2 };
+
+// ❌ indexOf compares by reference, not value
+console.log(users.indexOf(searchUser)); // -1 (not found)
+
+// ✅ Use findIndex for objects
+console.log(users.findIndex(u => u.id === 2)); // 1
+```
+
+### 4. Empty Slots vs Undefined
+
+```js
+// Empty slots (sparse array)
+const sparse = [1, , 3]; // Has empty slot at index 1
+console.log(sparse.length); // 3
+console.log(1 in sparse); // false
+
+// forEach skips empty slots
+sparse.forEach(x => console.log(x)); // 1, 3
+
+// ✅ Explicitly use undefined if needed
+const explicit = [1, undefined, 3];
+explicit.forEach(x => console.log(x)); // 1, undefined, 3
+```
+
+### 5. Wrong Return in map/filter
+
+```js
+const numbers = [1, 2, 3];
+
+// ❌ Forgetting return in map
+const doubled = numbers.map(n => { n * 2 }); // [undefined, undefined, undefined]
+
+// ✅ Return explicitly or use implicit return
+const doubledFixed = numbers.map(n => { return n * 2 });
+const doubledBest = numbers.map(n => n * 2);
+
+// ❌ Returning non-boolean in filter
+const evenWrong = numbers.filter(n => n % 2); // [1, 3] - opposite of expected!
+
+// ✅ Return explicit boolean
+const evenCorrect = numbers.filter(n => n % 2 === 0); // [2]
+```
+
+## Interview Questions
+
+::: details Q: What's the difference between map() and forEach()?
+**Answer:**
+
+| Feature | `map()` | `forEach()` |
+|---------|---------|-------------|
+| Returns | New array | `undefined` |
+| Purpose | Transform data | Side effects |
+| Chainable | Yes | No |
+| Can break early | No | No |
+
+```js
+const numbers = [1, 2, 3];
+
+// map - transforms and returns new array
+const doubled = numbers.map(n => n * 2); // [2, 4, 6]
+
+// forEach - just iterates, returns undefined
+const result = numbers.forEach(n => console.log(n)); // undefined
+```
+
+**Use `map`** when you need to transform data.
+**Use `forEach`** when you just need to do something with each element.
+:::
+
+::: details Q: How does reduce() work?
+**Answer:**
+`reduce()` iterates through an array and accumulates values into a single result.
+
+```js
+array.reduce((accumulator, currentValue, index, array) => {
+    // return new accumulator value
+}, initialValue);
+```
+
+```js
+// Sum
+[1, 2, 3, 4].reduce((sum, n) => sum + n, 0); // 10
+
+// Max
+[3, 1, 4, 1, 5].reduce((max, n) => n > max ? n : max, -Infinity); // 5
+
+// Group by
+const people = [
+    { name: 'Alice', age: 25 },
+    { name: 'Bob', age: 30 },
+    { name: 'Charlie', age: 25 }
+];
+
+const byAge = people.reduce((groups, person) => {
+    const age = person.age;
+    groups[age] = groups[age] || [];
+    groups[age].push(person);
+    return groups;
+}, {});
+// { 25: [{name: 'Alice'...}, {name: 'Charlie'...}], 30: [{name: 'Bob'...}] }
+```
+:::
+
+::: details Q: How do you remove duplicates from an array?
+**Answer:**
+
+```js
+const arr = [1, 2, 2, 3, 3, 3, 4];
+
+// Method 1: Set (simplest)
+const unique1 = [...new Set(arr)]; // [1, 2, 3, 4]
+
+// Method 2: filter with indexOf
+const unique2 = arr.filter((item, index) => arr.indexOf(item) === index);
+
+// Method 3: reduce
+const unique3 = arr.reduce((acc, item) => {
+    if (!acc.includes(item)) acc.push(item);
+    return acc;
+}, []);
+
+// For objects, use a key
+const users = [
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+    { id: 1, name: 'Alice' }
+];
+
+const uniqueUsers = users.filter((user, index, self) =>
+    index === self.findIndex(u => u.id === user.id)
+);
+```
+:::
+
+## Real-World Examples
+
+### Shopping Cart Operations
+
+```js
+const cart = [
+    { id: 1, name: "Laptop", price: 999.99, quantity: 1 },
+    { id: 2, name: "Mouse", price: 29.99, quantity: 2 },
+    { id: 3, name: "Keyboard", price: 79.99, quantity: 1 },
+];
+
+// Calculate total
+function getCartTotal(items) {
+    return items.reduce((total, item) => {
+        return total + (item.price * item.quantity);
+    }, 0);
+}
+
+// Add item (immutable)
+function addItem(items, newItem) {
+    const existingIndex = items.findIndex(i => i.id === newItem.id);
+
+    if (existingIndex >= 0) {
+        return items.map((item, index) =>
+            index === existingIndex
+                ? { ...item, quantity: item.quantity + newItem.quantity }
+                : item
+        );
+    }
+
+    return [...items, newItem];
+}
+
+// Remove item (immutable)
+function removeItem(items, itemId) {
+    return items.filter(item => item.id !== itemId);
+}
+
+// Update quantity (immutable)
+function updateQuantity(items, itemId, quantity) {
+    if (quantity <= 0) {
+        return removeItem(items, itemId);
+    }
+
+    return items.map(item =>
+        item.id === itemId
+            ? { ...item, quantity }
+            : item
+    );
+}
+
+// Get cart summary
+function getCartSummary(items) {
+    return {
+        itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+        uniqueItems: items.length,
+        subtotal: getCartTotal(items),
+        items: items.map(({ name, quantity, price }) => ({
+            name,
+            quantity,
+            lineTotal: (price * quantity).toFixed(2)
+        }))
+    };
+}
+
+console.log(getCartSummary(cart));
+```
+
+### Data Transformation Pipeline
+
+```js
+const rawData = [
+    { id: 1, name: "Alice", department: "Engineering", salary: 85000, active: true },
+    { id: 2, name: "Bob", department: "Marketing", salary: 65000, active: true },
+    { id: 3, name: "Charlie", department: "Engineering", salary: 95000, active: false },
+    { id: 4, name: "Diana", department: "Engineering", salary: 90000, active: true },
+    { id: 5, name: "Eve", department: "Marketing", salary: 70000, active: true },
+];
+
+// Pipeline: Get active engineering employees sorted by salary
+const result = rawData
+    .filter(emp => emp.active)
+    .filter(emp => emp.department === "Engineering")
+    .sort((a, b) => b.salary - a.salary)
+    .map(({ id, name, salary }) => ({ id, name, salary }));
+
+// Group employees by department with stats
+function getDepartmentStats(employees) {
+    return employees
+        .filter(emp => emp.active)
+        .reduce((stats, emp) => {
+            const dept = emp.department;
+
+            if (!stats[dept]) {
+                stats[dept] = {
+                    count: 0,
+                    totalSalary: 0,
+                    employees: []
+                };
+            }
+
+            stats[dept].count++;
+            stats[dept].totalSalary += emp.salary;
+            stats[dept].employees.push(emp.name);
+            stats[dept].avgSalary = stats[dept].totalSalary / stats[dept].count;
+
+            return stats;
+        }, {});
+}
+
+console.log(getDepartmentStats(rawData));
+```
+
+### Pagination Helper
+
+```js
+function paginate(array, pageSize, pageNumber) {
+    const startIndex = (pageNumber - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    return {
+        data: array.slice(startIndex, endIndex),
+        pagination: {
+            currentPage: pageNumber,
+            pageSize,
+            totalItems: array.length,
+            totalPages: Math.ceil(array.length / pageSize),
+            hasNextPage: endIndex < array.length,
+            hasPrevPage: pageNumber > 1,
+        }
+    };
+}
+
+// Usage
+const allItems = Array.from({ length: 95 }, (_, i) => ({
+    id: i + 1,
+    name: `Item ${i + 1}`
+}));
+
+const page1 = paginate(allItems, 10, 1);
+console.log(page1);
+// {
+//   data: [{id: 1, name: "Item 1"}, ...], // 10 items
+//   pagination: {
+//     currentPage: 1,
+//     pageSize: 10,
+//     totalItems: 95,
+//     totalPages: 10,
+//     hasNextPage: true,
+//     hasPrevPage: false
+//   }
+// }
+```
+
+### Search and Filter System
+
+```js
+function createSearchFilter(items, searchableFields) {
+    return function search(query, filters = {}) {
+        let results = [...items];
+
+        // Text search across multiple fields
+        if (query) {
+            const lowerQuery = query.toLowerCase();
+            results = results.filter(item =>
+                searchableFields.some(field => {
+                    const value = item[field];
+                    return value && String(value).toLowerCase().includes(lowerQuery);
+                })
+            );
+        }
+
+        // Apply filters
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                if (Array.isArray(value)) {
+                    results = results.filter(item => value.includes(item[key]));
+                } else if (typeof value === 'object') {
+                    // Range filter { min, max }
+                    if (value.min !== undefined) {
+                        results = results.filter(item => item[key] >= value.min);
+                    }
+                    if (value.max !== undefined) {
+                        results = results.filter(item => item[key] <= value.max);
+                    }
+                } else {
+                    results = results.filter(item => item[key] === value);
+                }
+            }
+        });
+
+        return results;
+    };
+}
+
+// Usage
+const products = [
+    { id: 1, name: "iPhone 15", category: "phones", price: 999, brand: "Apple" },
+    { id: 2, name: "Galaxy S24", category: "phones", price: 899, brand: "Samsung" },
+    { id: 3, name: "MacBook Pro", category: "laptops", price: 1999, brand: "Apple" },
+    { id: 4, name: "ThinkPad", category: "laptops", price: 1299, brand: "Lenovo" },
+];
+
+const searchProducts = createSearchFilter(products, ['name', 'brand']);
+
+// Search for "apple"
+console.log(searchProducts('apple'));
+// [{id: 1, name: "iPhone 15"...}, {id: 3, name: "MacBook Pro"...}]
+
+// Search with filters
+console.log(searchProducts('', {
+    category: 'phones',
+    price: { max: 950 }
+}));
+// [{id: 2, name: "Galaxy S24"...}]
+```
+
 ## Summary
 
 | Concept | Key Points |

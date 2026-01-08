@@ -43,3 +43,26 @@
   --vp-c-brand-soft: rgba(192, 132, 252, 0.16);
 } */
 
+/* macOS-style code block header with traffic light buttons */
+.vp-doc div[class*="language-"]::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ff5f57;
+  box-shadow: 20px 0 0 #febc2e, 40px 0 0 #28c840;
+  z-index: 10;
+}
+
+.vp-doc div[class*="language-"] > pre {
+  padding-top: 40px !important;
+}
+
+.vp-doc div[class*="language-"] > span.lang {
+  top: 14px !important;
+  right: 12px;
+}
+

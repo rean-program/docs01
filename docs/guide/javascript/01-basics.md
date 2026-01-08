@@ -715,6 +715,260 @@ console.log(Array.isArray(myArray)); // true
 ```
 :::
 
+## Common Mistakes and Pitfalls
+
+::: danger Common Beginner Mistakes
+Learn from these frequently made errors to write better code from the start.
+:::
+
+### 1. Using `==` Instead of `===`
+
+```js
+// ❌ Dangerous - unexpected type coercion
+console.log(1 == "1");     // true
+console.log(0 == false);   // true
+console.log(null == undefined); // true
+
+// ✅ Safe - strict comparison
+console.log(1 === "1");    // false
+console.log(0 === false);  // false
+console.log(null === undefined); // false
+```
+
+### 2. Forgetting `const` or `let`
+
+```js
+// ❌ Creates global variable (implicit global)
+myVariable = "oops";
+
+// ✅ Properly declared
+const myVariable = "correct";
+```
+
+### 3. Confusing Reference vs Value
+
+```js
+// Primitives are copied by value
+let a = 5;
+let b = a;
+b = 10;
+console.log(a); // 5 (unchanged)
+
+// Objects are copied by reference
+const obj1 = { name: "John" };
+const obj2 = obj1;
+obj2.name = "Jane";
+console.log(obj1.name); // "Jane" (changed!)
+
+// To copy an object
+const obj3 = { ...obj1 }; // Shallow copy
+```
+
+### 4. NaN Comparisons
+
+```js
+// ❌ NaN is never equal to anything, including itself!
+console.log(NaN === NaN); // false
+
+// ✅ Use Number.isNaN() or isNaN()
+console.log(Number.isNaN(NaN)); // true
+console.log(isNaN("hello"));    // true (converts to NaN first)
+console.log(Number.isNaN("hello")); // false (stricter)
+```
+
+### 5. Floating Point Precision
+
+```js
+// ❌ Floating point math can be imprecise
+console.log(0.1 + 0.2 === 0.3); // false!
+console.log(0.1 + 0.2);         // 0.30000000000000004
+
+// ✅ Use toFixed() or compare with tolerance
+console.log((0.1 + 0.2).toFixed(1) === "0.3"); // true
+console.log(Math.abs((0.1 + 0.2) - 0.3) < 0.0001); // true
+```
+
+## Debugging Tips
+
+::: tip How to Debug JavaScript
+1. **Use `console.log()`** - Print values to understand what's happening
+2. **Use `typeof`** - Check data types when confused
+3. **Browser DevTools** - Use the debugger and breakpoints
+4. **Read error messages** - They often tell you exactly what's wrong
+:::
+
+```js
+// Debugging techniques
+const data = getUserData();
+
+// Log the value
+console.log("data:", data);
+
+// Log with label
+console.log({ data }); // Shows { data: ... }
+
+// Check type
+console.log("type:", typeof data);
+
+// Pretty print objects
+console.log(JSON.stringify(data, null, 2));
+
+// Table format for arrays
+console.table([{ a: 1 }, { a: 2 }]);
+
+// Group related logs
+console.group("User Data");
+console.log("Name:", data.name);
+console.log("Age:", data.age);
+console.groupEnd();
+```
+
+## Interview Questions
+
+::: details Q: What's the difference between `null` and `undefined`?
+**Answer:**
+- `undefined` means a variable has been declared but not assigned a value
+- `null` is an intentional assignment indicating "no value"
+- `typeof undefined` returns `"undefined"`
+- `typeof null` returns `"object"` (historical bug in JavaScript)
+
+```js
+let x;           // undefined (not assigned)
+let y = null;    // null (intentionally empty)
+```
+:::
+
+::: details Q: What is hoisting?
+**Answer:**
+Hoisting is JavaScript's behavior of moving declarations to the top of their scope.
+- `var` declarations are hoisted and initialized to `undefined`
+- `let` and `const` are hoisted but not initialized (Temporal Dead Zone)
+- Function declarations are fully hoisted (can call before definition)
+
+```js
+console.log(x); // undefined (var is hoisted)
+var x = 5;
+
+console.log(y); // ReferenceError (TDZ)
+let y = 5;
+
+sayHi(); // Works! (function declaration hoisted)
+function sayHi() {
+    console.log("Hi!");
+}
+```
+:::
+
+::: details Q: What are primitive vs reference types?
+**Answer:**
+- **Primitives** (String, Number, Boolean, etc.): Stored by value, immutable, copied when assigned
+- **Reference types** (Objects, Arrays): Stored by reference, mutable, share same memory when assigned
+
+```js
+// Primitive - copied by value
+let a = 10;
+let b = a;
+b = 20;
+console.log(a); // 10 (unchanged)
+
+// Reference - copied by reference
+let arr1 = [1, 2, 3];
+let arr2 = arr1;
+arr2.push(4);
+console.log(arr1); // [1, 2, 3, 4] (changed!)
+```
+:::
+
+## Real-World Examples
+
+### Form Validation
+
+```js
+function validateEmail(email) {
+    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return pattern.test(email);
+}
+
+function validateAge(age) {
+    const ageNum = Number(age);
+    return !isNaN(ageNum) && ageNum >= 0 && ageNum <= 120;
+}
+
+function validateForm(data) {
+    const errors = [];
+
+    if (!data.name || data.name.trim().length === 0) {
+        errors.push("Name is required");
+    }
+
+    if (!validateEmail(data.email)) {
+        errors.push("Invalid email format");
+    }
+
+    if (!validateAge(data.age)) {
+        errors.push("Age must be a number between 0 and 120");
+    }
+
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+}
+
+// Usage
+const result = validateForm({
+    name: "John",
+    email: "john@example.com",
+    age: 25
+});
+
+console.log(result); // { isValid: true, errors: [] }
+```
+
+### Price Calculator
+
+```js
+const TAX_RATE = 0.08;
+const DISCOUNT_THRESHOLD = 100;
+const DISCOUNT_RATE = 0.10;
+
+function calculateTotal(items) {
+    // Calculate subtotal
+    const subtotal = items.reduce((sum, item) => {
+        return sum + (item.price * item.quantity);
+    }, 0);
+
+    // Apply discount if threshold met
+    const discount = subtotal >= DISCOUNT_THRESHOLD
+        ? subtotal * DISCOUNT_RATE
+        : 0;
+
+    const afterDiscount = subtotal - discount;
+
+    // Calculate tax
+    const tax = afterDiscount * TAX_RATE;
+
+    // Final total
+    const total = afterDiscount + tax;
+
+    return {
+        subtotal: subtotal.toFixed(2),
+        discount: discount.toFixed(2),
+        tax: tax.toFixed(2),
+        total: total.toFixed(2)
+    };
+}
+
+// Usage
+const cart = [
+    { name: "Book", price: 29.99, quantity: 2 },
+    { name: "Pen", price: 4.99, quantity: 5 }
+];
+
+console.log(calculateTotal(cart));
+// { subtotal: "84.93", discount: "0.00", tax: "6.79", total: "91.72" }
+```
+
 ## Summary
 
 | Concept | Key Points |

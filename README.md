@@ -4,14 +4,37 @@ A comprehensive web development documentation site built with VitePress, coverin
 
 ## Topics Covered
 
+### Frontend
+
 - **HTML** - Semantic markup, accessibility, and modern HTML5 features
 - **CSS** - Flexbox, Grid, animations, and responsive design
 - **JavaScript** - ES6+, async programming, DOM manipulation, and OOP
 - **TypeScript** - Type safety, generics, decorators, and advanced patterns
+- **React** - Component-based UI development
+- **Vue** - Progressive JavaScript framework
+
+### Backend
+
+- **Node.js** - Server-side JavaScript runtime
+- **Express** - Minimal and flexible Node.js web framework
 - **NestJS** - Enterprise Node.js applications with modular architecture
 - **Hono** - Ultrafast web framework for Edge computing
 - **Python** - Web development, data structures, and OOP
-- **AI & Machine Learning** - Neural networks, deep learning, and LLMs
+- **C#** - Object-oriented programming with .NET
+- **.NET** - Cross-platform application development
+
+### Databases
+
+- **PostgreSQL** - Advanced open-source relational database
+- **SQL Server** - Microsoft relational database management system
+
+### DevOps & Tools
+
+- **Docker** - Containerization and deployment
+
+### AI & Machine Learning
+
+- Neural networks, deep learning, and LLMs
 
 ## Prerequisites
 
@@ -55,9 +78,18 @@ doc01/
 │   │   ├── css/           # CSS tutorials
 │   │   ├── javascript/    # JavaScript tutorials
 │   │   ├── typescript/    # TypeScript tutorials
+│   │   ├── react/         # React tutorials
+│   │   ├── vue/           # Vue tutorials
+│   │   ├── nodejs/        # Node.js tutorials
+│   │   ├── express/       # Express tutorials
 │   │   ├── nestjs/        # NestJS tutorials
 │   │   ├── hono/          # Hono tutorials
 │   │   ├── python/        # Python tutorials
+│   │   ├── csharp/        # C# tutorials
+│   │   ├── dotnet/        # .NET tutorials
+│   │   ├── postgresql/    # PostgreSQL tutorials
+│   │   ├── sqlserver/     # SQL Server tutorials
+│   │   ├── docker/        # Docker tutorials
 │   │   └── ai/            # AI & ML tutorials
 │   └── index.md           # Homepage
 ├── .github/
